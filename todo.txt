@@ -1,0 +1,4 @@
+- durata dell'asta: min=1d, max=7d
+- Granularità di incremento delle offerte è di multipli di 50 centesimi
+- I + 50 cent?
+

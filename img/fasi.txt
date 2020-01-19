@@ -1,0 +1,8 @@
+1- Creazione entità utente e tutti gli attributi
+2- Istance of (?) di oggetto e spiegazione
+3- generalizzazione oggetto reale con spiegazione
+4- aggiunta entitò offerta e relazioni "compie" e "aggiudicato" con spiegazione 
+   identificatore esterno
+5- aggiunta entità categoria con associazione ricorsiva e identificatore 
+   esterno a oggetto
+6- integrazione finale
