@@ -1,5 +1,6 @@
 ######## CREAO DATABASE ##########
-CREATE DATABASE auction_house CHARACTER SET utf8 COLLATE utf8_general_ci;
+# CREATE DATABASE auction_house CHARACTER SET utf8 COLLATE utf8_general_ci; o è create schema?
+
 
 
 # Tables
