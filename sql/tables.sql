@@ -43,5 +43,15 @@ Nome_Categoria varchar(25) PRIMARY KEY,
 livello ENUM("1","2","3"));
 
 
+#categoria superiore/inferiore
+
+CREATE TABLE auction_house.catIndex(
+  Categoria varchar(25) NOT NULL,
+  SubCategoria varchar(25) NOT NULL,
+  PRIMARY KEY (Categoria,SubCategoria),
+  FOREIGN KEY (Categoria) REFERENCES auction_house.categoria (Nome_Categoria),
+  FOREIGN KEY (SubCategoria) REFERENCES auction_house.categoria (Nome_Categoria)):
+
+
 
 
