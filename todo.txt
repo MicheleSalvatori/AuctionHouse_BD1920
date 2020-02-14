@@ -2,3 +2,24 @@
 - Granularità di incremento delle offerte è di multipli di 50 centesimi
 - I + 50 cent?
 
+
+
+Registrazione Utente? 
+Bisogna aggiungere l'attributo password nella tabella utenti
+
+bisogna creare una tabella per gli amministratori?
+oppure aggiungiamo l'attributo ruolo? (nullo in caso di utente e 1 in caso di amministratore?)
+
+
+menu con 1) accedi
+	 2) registrazione
+
+
+regola aziendale? -> l'utente che possiede l'asta con l'offerta attualmente più alta non può
+		     effettuare di nuovo un'offerta più alta sullo stesso oggetto 
+
+
+
+
+
+attributi dell'indirizzo da accorpare
