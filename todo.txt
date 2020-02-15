@@ -23,3 +23,7 @@ regola aziendale? -> l'utente che possiede l'asta con l'offerta attualmente più
 
 
 attributi dell'indirizzo da accorpare
+
+
+- primary key(nome_Categoria, livello) della relazione categoria
+- prezzo_attuale: trovare il modo di metterlo uguale a prezzo_base all'inserimento
