@@ -1,5 +1,5 @@
 #include <mysql/mysql.h>
-
+#include <stdbool.h>				// senza bool non è dichiarato, si usa _Bool
 
 
 extern MYSQL *conn;
