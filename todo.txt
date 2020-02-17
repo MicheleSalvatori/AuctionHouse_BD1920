@@ -25,5 +25,11 @@ regola aziendale? -> l'utente che possiede l'asta con l'offerta attualmente più
 attributi dell'indirizzo da accorpare
 
 
-- primary key(nome_Categoria, livello) della relazione categoria
+- FATTO primary key(nome_Categoria, livello) della relazione categoria  
 - prezzo_attuale: trovare il modo di metterlo uguale a prezzo_base all'inserimento
+
+- Quando si aggiunge un oggetto in asta chiedere la durata dell'asta (Giorni e Ore ?) e chiamare query che la converte in datetime
+
+- quando si aggiunge una categoria chiedere livello e posizionarla nell'indice
+
+- quando si fa un'offerta si deve controllare che il valore della nuova offerta è maggiore del 	   valore dell'ultima offerta inserita
