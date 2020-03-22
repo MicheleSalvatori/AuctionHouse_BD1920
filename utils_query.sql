@@ -1,5 +1,5 @@
 INSERT INTO auction_house.utenti VALUES
-("CCCMHL98T07A123M", "Michele", "Salvatori", "1998-12-07", "Alatri", "via vicinale cesadoni 28", "03010", "5410640744377561", "2020/02", "Michele", "Salvatori", "981", "pippo", "michele.salvatori");
+("DDDMHL98T07A123M", "Michele", "Salvatori", "1998-12-07", "Alatri", "via vicinale cesadoni 28", "03010", "5410640744377561", "2020/01", "Michele", "Salvatori", "981", "pippo", "michele.salvatori");
 
 INSERT INTO auction_house.offerte values
 ("SLVMHL98T07A123M", DEFAULT, "100", null);

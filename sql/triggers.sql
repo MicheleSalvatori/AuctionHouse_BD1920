@@ -31,6 +31,18 @@ CREATE TRIGGER auction_house.check_valid_dataScadenza BEFORE INSERT ON auction_h
 	
     END $$
 
+    CREATE TRIGGER auction_house.level BEFORE INSERT ON auction_house.tipo_oggetto
+	FOR EACH ROW 
+	BEGIN
+		IF (SELECT EXISTS (SELECT *
+			   FROM auction_house.categoria
+			   WHERE Livello != "3" and Nome_Categoria = NEW.Nome_Categoria))
+		THEN
+        SIGNAL SQLSTATE '02000' SET MESSAGE_TEXT = 'Attenzione categoria non di livello 3';
+		
+        END IF;
+	
+    END $$
     
 
     

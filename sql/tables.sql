@@ -93,3 +93,9 @@ ALTER TABLE auction_house.aggiudicati ADD CONSTRAINT aggiudicati_FK_1 FOREIGN KE
 ALTER TABLE auction_house.aggiudicati ADD CONSTRAINT aggiudicati_FK_2 FOREIGN KEY (Utente) REFERENCES auction_house.utenti(CF_Utente) ON UPDATE CASCADE;
 ALTER TABLE auction_house.catIndex ADD CONSTRAINT catIndex_FK FOREIGN KEY (Categoria) REFERENCES auction_house.categoria(Nome_Categoria) ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE auction_house.catIndex ADD CONSTRAINT catIndex_FK_2 FOREIGN KEY (SubCategoria) REFERENCES auction_house.categoria(Nome_Categoria) ON DELETE CASCADE ON UPDATE CASCADE;
+
+
+
+
+## problema tipo_oggetto -> da rivedere schema logico
+## risistemare tabelle. generare codie da wb e valutare modifiche

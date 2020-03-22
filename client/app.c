@@ -14,206 +14,142 @@ MYSQL *conn;
 MYSQL *login;
 char u[255];
 char p[255];
-char c;
-int cmd1 = 0;
-char query[255];
-
-
-void print_stmt_error (MYSQL_STMT *stmt, char *message)
-{
-	fprintf (stderr, "%s\n", message);
-	if (stmt != NULL) {
-		fprintf (stderr, "Error %u (%s): %s\n",
-			mysql_stmt_errno (stmt),
-			mysql_stmt_sqlstate(stmt),
-			mysql_stmt_error (stmt));
-	}
-}
-
-
-void print_error(MYSQL *conn, char *message)
-{
-	fprintf (stderr, "%s\n", message);
-	if (conn != NULL) {
-		#if MYSQL_VERSION_ID >= 40101
-		fprintf (stderr, "Error %u (%s): %s\n",
-		mysql_errno (conn), mysql_sqlstate(conn), mysql_error (conn));
-		#else
-		fprintf (stderr, "Error %u: %s\n",
-		mysql_errno (conn), mysql_error (conn));
-		#endif
-	}
-}
-
-void finish_with_stmt_error(MYSQL *conn, MYSQL_STMT *stmt, char *message, bool close_stmt)
-{
-	print_stmt_error(stmt, message);
-	if(close_stmt) 	mysql_stmt_close(stmt);
-	mysql_close(conn);
-	exit(EXIT_FAILURE);        
-}
-
-void finish_with_error(MYSQL *con, char *err) {
-	fprintf(stderr, "%s error: %s\n", err, mysql_error(con));
-	mysql_close(con);
-	exit(1);
-}
+int cmd1, cmd2;
 
 
 
-void input_wait() {
-	char c;
-	printf("\nINFO: Premi invio per continuare: \n");
-	while (c = getchar() != '\n'){}
-}
+int getRole(char* username, char* password){
+	MYSQL_STMT *login_procedure;
+	MYSQL_BIND param[3];
+	int role;
 
-void run_sql_query (char *query) {
-	printf("QUERY: %s \n",query);
-	if(mysql_query(conn,query)) {
-		finish_with_error(conn, "Query");
-	} else {
-		
-		input_wait();
-	}
-}
-
-void query_metodo_1(){
-
-	char nome_cat[25];
-	int livello;
-	printf("---- Nuova Categoria ----\n\n\n");
-	printf("Inserisci nome della categoria: ");
-	scanf("%s", nome_cat);
-	fflush(stdin);
-	printf("Inserisci livello [1/2/3]: ");
-	scanf("%d", &livello);
-	fflush(stdin);
-
-	snprintf(query, 1000, "call inserisci_categoria('%s', '%d')", nome_cat, livello);
-	run_sql_query(query);
-}
-
-bool setup_prepared_stmt(MYSQL_STMT **stmt, char *statement, MYSQL *conn)
-{
-	my_bool update_length = true;
-
-	*stmt = mysql_stmt_init(conn);
-	if (*stmt == NULL)
-	{
-		print_error(conn, "Could not initialize statement handler");
-		return false;
+	if(!setup_prepared_stmt(&login_procedure, "call login(?, ?, ?)", conn)) {
+		print_stmt_error(login_procedure, "Unable to initialize login statement\n");
+		goto failed;
 	}
 
-	if (mysql_stmt_prepare (*stmt, statement, strlen(statement)) != 0) {
-		print_stmt_error(*stmt, "Could not prepare statement");
-		return false;
-	}
-
-	mysql_stmt_attr_set(*stmt, STMT_ATTR_UPDATE_MAX_LENGTH, &update_length);
-
-	return true;
-}
-
-void query_prepared_stm(){
-	printf("\033[2J\033[H");		// pulisce terminale e posiziona il cursore in alto a sinistra
-									// http://ascii-table.com/ansi-escape-sequences.php
-	char nome_cat[25];				// 033 = \ in octal numbers, [2J = erase display, [H posizione cursore
-	int livello;
-
-	MYSQL_STMT *prepared_stmt;
-	MYSQL_BIND param[2];
-
-	if(!setup_prepared_stmt(&prepared_stmt, "call inserisci_categoria(?,?)", conn)) {
-		finish_with_stmt_error(conn, prepared_stmt, "Unable to initialize exam list statement\n", false);
-	}
-	printf("---- Nuova Categoria ----\n\n");	
-	printf("Inserisci nome della categoria: ");
-	scanf("%s", nome_cat);
-	fflush(stdin);
-	printf("Inserisci livello [1/2/3]: ");
-	scanf("%d", &livello);
-	fflush(stdin);
-
-
-	// Prepare parameters
 	memset(param, 0, sizeof(param));
-	
-	param[0].buffer_type = MYSQL_TYPE_VAR_STRING;
-	param[0].buffer = nome_cat;
-	param[0].buffer_length = strlen(nome_cat);
 
-	param[1].buffer_type = MYSQL_TYPE_LONG;
-	param[1].buffer = &livello;
-	//param[0].buffer_length = strlen(livello);
-	
+	param[0].buffer_type = MYSQL_TYPE_VAR_STRING; // IN
+	param[0].buffer = username;
+	param[0].buffer_length = strlen(username);
 
-	if (mysql_stmt_bind_param(prepared_stmt, param) != 0) {
-		finish_with_stmt_error(conn, prepared_stmt, "Could not bind parameters for exam list\n", true);
+	param[1].buffer_type = MYSQL_TYPE_VAR_STRING; // IN
+	param[1].buffer = password;
+	param[1].buffer_length = strlen(password);
+
+	param[2].buffer_type = MYSQL_TYPE_LONG; // OUT
+	param[2].buffer = &role;
+	param[2].buffer_length = sizeof(role);
+
+	if (mysql_stmt_bind_param(login_procedure, param) != 0) { 
+		print_stmt_error(login_procedure, "Could not bind parameters for login");
+		goto err;
 	}
 
-	// Run procedure
-	if (mysql_stmt_execute(prepared_stmt) != 0) {
-		print_stmt_error (prepared_stmt, "An error occurred while registering the exam.");
-	} else {
-		printf("Categoria inserita correttamente...\n");
+	if (mysql_stmt_execute(login_procedure) != 0) {
+		print_stmt_error(login_procedure, "Could not execute login procedure");
+		goto err;
 	}
 
-	mysql_stmt_close(prepared_stmt);
+	memset(param, 0, sizeof(param));
+	param[0].buffer_type = MYSQL_TYPE_LONG; // OUT
+	param[0].buffer = &role;
+	param[0].buffer_length = sizeof(role);
+	
+	if(mysql_stmt_bind_result(login_procedure, param)) {
+		print_stmt_error(login_procedure, "Could not retrieve output parameter");
+		goto err;
+	}
+	if(mysql_stmt_fetch(login_procedure)) {
+		print_stmt_error(login_procedure, "Could not buffer results");
+		goto err;
+	}
+	mysql_stmt_close(login_procedure);
+	return role;
 
-	input_wait();
-
+	err:
+	mysql_stmt_close(login_procedure);
+	failed:
+	return 99;
 }
 
 
-void login_procedure () {
 
-	
-	printf("\n---- LOGIN_prova ----\n\n");
-	printf("> Inserisci l'username: ");
-	scanf("%s",u);
-	printf("> Inserisci la password: ");
-	scanf("%s",p);
-	printf("\n\n");
-
-	conn = mysql_init(NULL);
-	login = mysql_real_connect(conn, "localhost",u,NULL, "auction_house", 3306, NULL, 0);		// ho messo momentaneamente la password NULL
-
-		if (login == NULL) {
-		fprintf(stderr, "%s\n", mysql_error(conn));
-		mysql_close(conn);
-		exit(1);
-
-	} else {
-		printf ("\n ---- Connessione Riuscita ----\n");
-
-
-		query_prepared_stm(); 
-	}
-
-	mysql_close(conn);
-	exit(0);
+void registraUtente(){
+	clearScreen("Nuovo Utente");
 }
 
 
 
 int main (int argc, char *argv[]) {
-	while (1) {
-		printf("--- Client_prova ---\n\n");
-		printf("  1) Login\n");
-		printf("  99) Termina\n\n");
-		printf("> Inserisci un Comando: ");
-		scanf ("%i",&cmd1);
-		fflush(stdin);
-		switch(cmd1){
-
-			case 1:
-				login_procedure();
-				break;
-
-			case 2:
-				printf("\nINFO: Uscita...Bye\n");
-				exit(0);
-		}
+	clearScreen("LOGIN");
+	conn = mysql_init(NULL);
+	if (conn == NULL){
+		fprintf(stderr, "Errore conn\n");
 	}
 	
+	login = mysql_real_connect(conn, "localhost" ,"piero", "loginUser", "db_prova", 3306, NULL, 0);				// prova
+
+		if (login == NULL) {
+		fprintf(stderr, "%s\n", mysql_error(conn));
+		mysql_close(conn);
+		exit(1);
+	}
+
+
+	while (1) {
+	printf("	1) Accedi\n");
+	printf("	2) Registra Nuovo Utente\n");
+	printf("	99) Termina\n");
+	printf("\nInserisci comando > ");
+	scanf("%i", &cmd1);
+	fflush(stdin);
+
+	if(cmd1 == 99){
+			printf("-- Bye --\n");
+			exit(1);
+	
+	}else if(cmd1 == 1){
+			
+			clearScreen("LOGIN");
+			
+			printf("Inserisci username: \n> ");
+			scanf("%s", u);
+			fflush(stdin);
+			printf("Inserisci password: \n> ");
+			scanf("%s", p);
+			fflush(stdin);
+			printf("\n\n");
+			
+			int role = getRole(u,p);
+
+			switch(role){
+
+				case 1:	
+					printf("Amministratore\n");
+					exit(1);
+				case 0:
+					printf("Utente\n");
+					exit(1);
+				case 99:
+					printf("Invalid credentials\nFAILED LOGIN\n");
+					exit(1);
+
+			}
+
+
+
+	}else if (cmd1 ==2){
+			registraUtente();
+			exit(1);					// meglio mettere inputWait
+	}else{
+			printf("\n-- Comando non presente\n\n");
+		}
+
+
+	}
+
+
+
 }

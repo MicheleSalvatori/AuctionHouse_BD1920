@@ -6,13 +6,16 @@ extern MYSQL *conn;
 extern MYSQL *login;
 extern char u[255];
 extern char p[255];
-extern char c;
-extern int cmd1;
-extern int cmd2;
-extern int num_fields;
-extern MYSQL_RES *result;
-extern MYSQL_ROW row;
-extern MYSQL_FIELD *field;
-extern char CF_I[17];
-extern char NOME_PISCINA_ADDETTO[50];
-extern char query[255];
+
+
+
+// UTILITY
+extern void clearScreen(char* s);
+extern void input_wait();
+extern void print_error (MYSQL *conn, char *message);
+extern void print_stmt_error (MYSQL_STMT *stmt, char *message);
+extern void finish_with_error(MYSQL *conn, char *message);
+extern void finish_with_stmt_error(MYSQL *conn, MYSQL_STMT *stmt, char *message, bool close_stmt);
+extern bool setup_prepared_stmt(MYSQL_STMT **stmt, char *statement, MYSQL *conn);
+extern void dump_result_set(MYSQL *conn, MYSQL_STMT *stmt, char *title);
+// 
