@@ -1,6 +1,6 @@
 DELIMITER $$
 
-CREATE TRIGGER auction_house.check_valid_dataNascita BEFORE INSERT ON auction_house.utenti
+CREATE TRIGGER db_prova.check_valid_dataNascita BEFORE INSERT ON db_prova.utenti
 	FOR EACH ROW
 	
     BEGIN
@@ -13,7 +13,7 @@ CREATE TRIGGER auction_house.check_valid_dataNascita BEFORE INSERT ON auction_ho
 	END $$
 
 
-CREATE TRIGGER auction_house.check_valid_dataScadenza BEFORE INSERT ON auction_house.utenti
+CREATE TRIGGER db_prova.check_valid_dataScadenza BEFORE INSERT ON db_prova.utenti
 	FOR EACH ROW
 
     BEGIN
@@ -31,11 +31,11 @@ CREATE TRIGGER auction_house.check_valid_dataScadenza BEFORE INSERT ON auction_h
 	
     END $$
 
-    CREATE TRIGGER auction_house.level BEFORE INSERT ON auction_house.tipo_oggetto
+    CREATE TRIGGER db_prova.level BEFORE INSERT ON db_prova.tipo_oggetto
 	FOR EACH ROW 
 	BEGIN
 		IF (SELECT EXISTS (SELECT *
-			   FROM auction_house.categoria
+			   FROM db_prova.categoria
 			   WHERE Livello != "3" and Nome_Categoria = NEW.Nome_Categoria))
 		THEN
         SIGNAL SQLSTATE '02000' SET MESSAGE_TEXT = 'Attenzione categoria non di livello 3';

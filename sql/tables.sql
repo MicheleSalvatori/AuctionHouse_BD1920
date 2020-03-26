@@ -1,14 +1,14 @@
 ######## CREAO DATABASE ##########
 
-DROP DATABASE IF EXISTS auction_house;
-CREATE DATABASE auction_house CHARACTER SET utf8 COLLATE utf8_general_ci;
+DROP DATABASE IF EXISTS db_prova;
+CREATE DATABASE db_prova CHARACTER SET utf8 COLLATE utf8_general_ci;
 SET GLOBAL lc_time_names = 'it_CH';
 
 
 
 ## UTENTI
 
-CREATE TABLE auction_house.utenti (
+CREATE TABLE db_prova.utenti (
   CF_Utente CHAR(16) PRIMARY KEY, 
   Nome VARCHAR(15) NOT NULL, 
   Cognome VARCHAR(15) NOT NULL, 
@@ -21,13 +21,14 @@ CREATE TABLE auction_house.utenti (
   Nome_intestatario VARCHAR(15) NOT NULL, 
   Cognome_intestatario VARCHAR(15) NOT NULL, 
   CVV VARCHAR(4) NOT NULL, 							# anche questo dipende dal tipo di carta
-  Password VARCHAR(15) NOT NULL,
-  username VARCHAR(25) NOT NULL
+  Password VARCHAR(50) NOT NULL,
+  username VARCHAR(50) NOT NULL UNIQUE, 
+  ruolo INT NOT NULL DEFAULT 0
   );
 
 ## OFFERTE
 
-CREATE TABLE auction_house.offerte(		
+CREATE TABLE db_prova.offerte(		
   CF_Utente CHAR(16), 
   Insert_time DATETIME DEFAULT current_timestamp(),					
   Valore DECIMAL(15,2) NOT NULL, 
@@ -36,7 +37,7 @@ CREATE TABLE auction_house.offerte(
   PRIMARY KEY (CF_Utente, Insert_time));
 
 
-CREATE TABLE auction_house.aggiudicati(
+CREATE TABLE db_prova.aggiudicati(
   Oggetto VARCHAR(25),
   Utente CHAR(16) NOT NULL, 
   Prezzo_vendita DECIMAL(15,2) NOT NULL,
@@ -47,14 +48,14 @@ CREATE TABLE auction_house.aggiudicati(
 ## CATEGORIE 
 
 
-CREATE TABLE auction_house.categoria(
+CREATE TABLE db_prova.categoria(
   Nome_Categoria varchar(25), 
   Livello ENUM("1","2","3"),
-  PRIMARY KEY (Nome_Categoria, Livello)
+  PRIMARY KEY (Nome_Categoria)
 );
 
 
-CREATE TABLE auction_house.catIndex(
+CREATE TABLE db_prova.catIndex(
   Categoria varchar(25) NOT NULL,
   SubCategoria varchar(25) NOT NULL,
   PRIMARY KEY (Categoria,SubCategoria)
@@ -62,7 +63,7 @@ CREATE TABLE auction_house.catIndex(
 
 ## OGGETTI
 
-CREATE TABLE auction_house.tipo_oggetto(
+CREATE TABLE db_prova.tipo_oggetto(
   Nome_Categoria VARCHAR(25), 
   Nome_Oggetto VARCHAR(25), 
   Dimensioni VARCHAR(25) NOT NULL,
@@ -71,7 +72,7 @@ CREATE TABLE auction_house.tipo_oggetto(
 );
 
 
-CREATE TABLE auction_house.oggetto(
+CREATE TABLE db_prova.oggetto(
   Id_oggetto varchar(25), 
   Colore VARCHAR(15),
   Prezzo_base DECIMAL(15,2) NOT NULL, 
@@ -84,18 +85,12 @@ CREATE TABLE auction_house.oggetto(
 
 
 
-ALTER TABLE auction_house.offerte ADD CONSTRAINT offerte_FK_1 FOREIGN KEY (CF_Utente) REFERENCES auction_house.utenti(CF_Utente) ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE auction_house.offerte ADD CONSTRAINT offerte_FK_2 FOREIGN KEY (Oggetto) REFERENCES auction_house.oggetto(Id_oggetto) ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE auction_house.tipo_oggetto ADD CONSTRAINT tipo_FK FOREIGN KEY (Nome_Categoria) REFERENCES auction_house.categoria(Nome_Categoria) ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE auction_house.oggetto ADD CONSTRAINT oggetto_FK FOREIGN KEY (categoria, tipo) REFERENCES auction_house.tipo_oggetto(Nome_Categoria, Nome_Oggetto) ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE auction_house.tipo_oggetto ADD CONSTRAINT tipo_FK FOREIGN KEY (Nome_Categoria) REFERENCES auction_house.categoria(Nome_Categoria) ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE auction_house.aggiudicati ADD CONSTRAINT aggiudicati_FK_1 FOREIGN KEY (Oggetto) REFERENCES auction_house.oggetto(Id_oggetto) ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE auction_house.aggiudicati ADD CONSTRAINT aggiudicati_FK_2 FOREIGN KEY (Utente) REFERENCES auction_house.utenti(CF_Utente) ON UPDATE CASCADE;
-ALTER TABLE auction_house.catIndex ADD CONSTRAINT catIndex_FK FOREIGN KEY (Categoria) REFERENCES auction_house.categoria(Nome_Categoria) ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE auction_house.catIndex ADD CONSTRAINT catIndex_FK_2 FOREIGN KEY (SubCategoria) REFERENCES auction_house.categoria(Nome_Categoria) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE db_prova.offerte ADD CONSTRAINT offerte_FK_1 FOREIGN KEY (CF_Utente) REFERENCES db_prova.utenti(CF_Utente) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE db_prova.offerte ADD CONSTRAINT offerte_FK_2 FOREIGN KEY (Oggetto) REFERENCES db_prova.oggetto(Id_oggetto) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE db_prova.tipo_oggetto ADD CONSTRAINT tipo_FK FOREIGN KEY (Nome_Categoria) REFERENCES db_prova.categoria(Nome_Categoria) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE db_prova.oggetto ADD CONSTRAINT oggetto_FK FOREIGN KEY (categoria, tipo) REFERENCES db_prova.tipo_oggetto(Nome_Categoria, Nome_Oggetto) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE db_prova.aggiudicati ADD CONSTRAINT aggiudicati_FK_1 FOREIGN KEY (Oggetto) REFERENCES db_prova.oggetto(Id_oggetto) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE db_prova.aggiudicati ADD CONSTRAINT aggiudicati_FK_2 FOREIGN KEY (Utente) REFERENCES db_prova.utenti(CF_Utente) ON UPDATE CASCADE;
+ALTER TABLE db_prova.catIndex ADD CONSTRAINT catIndex_FK FOREIGN KEY (Categoria) REFERENCES db_prova.categoria(Nome_Categoria) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE db_prova.catIndex ADD CONSTRAINT catIndex_FK_2 FOREIGN KEY (SubCategoria) REFERENCES db_prova.categoria(Nome_Categoria) ON DELETE CASCADE ON UPDATE CASCADE;
 
-
-
-
-## problema tipo_oggetto -> da rivedere schema logico
-## risistemare tabelle. generare codie da wb e valutare modifiche

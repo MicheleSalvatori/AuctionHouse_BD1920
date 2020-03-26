@@ -1,3 +1,9 @@
+##	TABLE
+	-psw e usr in utenti
+	-valutare tabella aggiuntiva per accesso solo con (usr, psw e ruolo) togliendoli nella tabella utenti
+	-toglie "livello" come PK in "categoria" (forse) (in caso togliere anche da img)
+
+
 - durata dell'asta: min=1d, max=7d
 - Granularità di incremento delle offerte è di multipli di 50 centesimi
 - I + 50 cent?
