@@ -90,6 +90,14 @@ void registraUtente(){
 	char pass[255];
 	char usr[255];
 	char dataScadenza[8];
+
+	MYSQL_STMT *prepared_stmt;
+	MYSQL_BIND param[14];
+
+	if (!setup_prepared_stmt(&prepared_stmt, "call inserisci_utente(?,?,?,?,?,?,?,?,?,?,?,?,?,?)", conn)){
+		print_stmt_error(prepared_stmt, "Unable to initialize new_user statement\n");
+		
+	}
 	clearScreen("Nuovo Utente");
 	
 	printf("INSERSICI I SEGUENTI DATI\n");
@@ -149,13 +157,6 @@ void registraUtente(){
 	scanf("%s", pass);
 	fflush(stdin);
 
-	MYSQL_STMT *prepared_stmt;
-	MYSQL_BIND param[14];
-
-	if (!setup_prepared_stmt(&prepared_stmt, "call inserisci_utente(?,?,?,?,?,?,?,?,?,?,?,?,?,?)", conn)){
-		print_stmt_error(prepared_stmt, "Unable to initialize new_user statement\n");
-		
-	}
 
 	memset(param, 0, sizeof(param));
 	param[0].buffer_type = MYSQL_TYPE_VAR_STRING; // IN
@@ -249,7 +250,7 @@ void registraUtente(){
 
 
 int main (int argc, char *argv[]) {
-	clearScreen("LOGIN");
+	// clearScreen("Aste Online");
 	conn = mysql_init(NULL);
 	if (conn == NULL){
 		fprintf(stderr, "Errore conn\n");
@@ -265,6 +266,7 @@ int main (int argc, char *argv[]) {
 
 
 	while (1) {
+		clearScreen("Aste Online");
 	printf("	1) Accedi\n");
 	printf("	2) Registra Nuovo Utente\n");
 	printf("	99) Termina\n");
@@ -293,29 +295,49 @@ int main (int argc, char *argv[]) {
 			switch(role){
 
 				case 1:	
-					printf("Amministratore\n");
-					exit(1);
+					run_as_admin(conn, u);
+
+					if (mysql_change_user(conn,"login", "loginUser", "db_prova")){
+						fprintf(stderr, "mysql_change_user() failed\n");
+						input_wait();
+						exit(EXIT_FAILURE);
+						}
+					break;
+
 				case 0:
-					printf("Utente\n");
-					exit(1);
+					run_as_user(conn, u);
+
+					if (mysql_change_user(conn,"login", "loginUser", "db_prova")){
+						fprintf(stderr, "mysql_change_user() failed\n");
+						input_wait();						
+						exit(EXIT_FAILURE);
+						}	
+					break;					
+				
 				case 99:
 					printf("Invalid credentials\nFAILED LOGIN\n");
-					exit(1);
-
+					input_wait();
+					break;
 			}
 
 
 
 	}else if (cmd1 ==2){
 			registraUtente();
-			exit(1);					// meglio mettere inputWait
+			input_wait();
+			break;					// meglio mettere inputWait
 	}else{
 			printf("\n-- Comando non presente\n\n");
+			input_wait();
 		}
 
 
 	}
 
+// chiudere conn ??
 
 
 }
+
+// TODO Quando un amminastrore aggiunge un nuovo oggetto come passiamo il tipo di oggetto? Dovrebbe scriverlo lui da client (toLowerCase() ??)
+// con nuova procedura che mostra tutti i tipi di oggetti
