@@ -75,10 +75,10 @@ CREATE TABLE db_prova.tipo_oggetto(
 CREATE TABLE db_prova.oggetto(
   Id_oggetto varchar(25), 
   Colore VARCHAR(15),
-  Prezzo_base DECIMAL(15,2) NOT NULL, 
+  Prezzo_base VARCHAR(15) NOT NULL, 
   Condizione ENUM("Nuovo", "Come nuovo", "Buone condizioni", "Usurato", "Non funzionante") NOT NULL, 
   Data_termine DATETIME NOT NULL, 
-  Prezzo_attuale DECIMAL(15,2) NOT NULL, 
+  Prezzo_attuale VARCHAR(15) NOT NULL, 
   Tipo VARCHAR(25),
   Categoria VARCHAR(25),
   PRIMARY KEY (id_oggetto));

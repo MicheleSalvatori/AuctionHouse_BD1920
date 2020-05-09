@@ -57,6 +57,7 @@ bool setup_prepared_stmt(MYSQL_STMT **stmt, char *statement, MYSQL *conn)
 	}
 
 	if (mysql_stmt_prepare (*stmt, statement, strlen(statement)) != 0) {
+		printf("Errore\n");
 		print_stmt_error(*stmt, "Could not prepare statement");
 		return false;
 	}

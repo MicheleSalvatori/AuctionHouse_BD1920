@@ -23,8 +23,6 @@ regola aziendale? -> l'utente che possiede l'asta con l'offerta attualmente più
 
 - Quando si aggiunge un oggetto in asta chiedere la durata dell'asta (Giorni e Ore ?) e chiamare query che la converte in datetime
 
-- quando si aggiunge una categoria chiedere livello e posizionarla nell'indice
-
 - quando si fa un'offerta si deve controllare che il valore della nuova offerta è maggiore del 	   valore dell'ultima offerta inserita
 
 
@@ -40,3 +38,32 @@ regola aziendale? -> l'utente che possiede l'asta con l'offerta attualmente più
 
 - procedura fill time quando si decide il termine dell'asta? 
   Diamo opzioni 1) 1gg 2) 2gg 3) 1h 4) altro   ecc max 7gg
+
+
+
+
+
+--> INSERISCI_OGGETTO -> cambiare decimal in VARCHAR(15);
+
+--> VISUALIZZARE LE CATEGORIE procedura, trovare modo che le stampi cosi
+	
+	CAT_1 -> CAT_2 -> CAT_3;
+
+--> RENDI ADMIN -> procedura che rende un utente admin (eseguibile solamente da un user già admin)
+
+--> EVENTO CHE BUTTA GLI OGGETTI MAI VENDUTI?? 
+	NO, perchè bisognare tenere traccia di tutti gli oggetti, rileggere consegna...
+
+
+--> admin.c inserisci nuova categoria:
+	mostra già le categorie presenti e richiedere il livello e nome delle già presenti (lavoro già svolto da visualizza_cat_3)
+	effettuare vari controlli
+	poi creare categoria e collegarla con l'apposita procedura
+
+
+--> SERVE PROCEDURA CHE DATO ID OGGETTO FORNISCE LA SUA STORIA??? 
+
+
+
+LEGGERE BENE TRACCIA. DI NUOVO. 
+VALUTARE USO DELLE VIEW.

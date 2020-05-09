@@ -56,14 +56,14 @@ WHERE CC.Categoria IN (SELECT Nome_Categoria
 																								         	WHERE Livello = "3") ;
 
 
-CREATE PROCEDURE db_prova.inserisci_oggetto(IN id VARCHAR(25), IN colore VARCHAR(15), IN prezzo DECIMAL(15,2), IN condizione VARCHAR(30), 
+CREATE PROCEDURE db_prova.inserisci_oggetto(IN id VARCHAR(25), IN colore VARCHAR(15), IN prezzo VARCHAR(15), IN condizione VARCHAR(30), 
 	IN Data_termine DATETIME, IN tipo VARCHAR(25), IN Categoria VARCHAR(25))
 	
 	INSERT INTO db_prova.oggetti VALUES (id, colore, prezzo, condizione, Data_termine, prezzo, tipo, Categoria);
 
 
 CREATE PROCEDURE db_prova.visualizza_aste_aperte ()
-	SELECT Id_oggetto as ID, Tipo as Nome, Colore, Condizione, Prezzo_base as "Prezzo Iniziale", Prezzo_attuale as "Prezzo Attuale", TIME_FORMAT(SEC_TO_TIME(TIMESTAMPDIFF(SECOND,"2020-02-18 15:00:00", "2020-02-19 16:00:00")), "%T") as "Tempo rimanente"
+	SELECT Id_oggetto as ID, Tipo as Nome, Colore, Condizione, Prezzo_base as "Prezzo Iniziale", Prezzo_attuale as "Prezzo Attuale", TIME_FORMAT(SEC_TO_TIME(TIMESTAMPDIFF(SECOND,NOW(), Data_termine)), "%T") as "Tempo rimanente"
 	FROM db_prova.oggetto 
 	WHERE Data_termine >= NOW();
 
