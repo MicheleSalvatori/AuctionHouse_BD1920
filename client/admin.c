@@ -21,39 +21,44 @@ void ins_categoria(MYSQL *conn, char *s){
 	MYSQL_BIND param[3];
 
 	char nome_cat_1[25], nome_cat_2[25], nome_cat_3[25];
-	int livello_cat;
-	// char livello_cat[5];
 
 	if (!setup_prepared_stmt(&prepared_stmt, "call prova(?,?,?)",conn)){
 		print_stmt_error(prepared_stmt, "Impossibile inizializzare statement per inserire categoria\n");
 	}
-	// clearScreen(s);
+	clearScreen(s);
 
 	visualizza_cat_3(conn);
-	printf("[Categoria LIVELLO 1 / Categoria LIVELLO 2/ Categoria Livello 3]\n");
-	printf("1) ");
+	printf("Categoria Livello 1: ");
 	scanf("%[^\n]", nome_cat_1);
 	fflush(stdin);
 
-	printf("2) ");
+	printf("Categoria Livello 2: ");
 	scanf("%[^\n]", nome_cat_2);
 	fflush(stdin);
 
-	printf("3) ");
+	printf("Categoria Livello 3: ");
 	scanf("%[^\n]", nome_cat_3);
 	fflush(stdin);
-	printf("Riepilogo %s, %s, %s\n", nome_cat_1, nome_cat_2, nome_cat_3);
-	// TODO SE INSERITE STRINGHE NULL RIP
+
+	printf("\nRiepilogo dati: %s->%s->%s", nome_cat_1, nome_cat_2, nome_cat_3);
+	input_wait("Premi invio per confermare...");
+
+	// controlli su input
+	if (nome_cat_1 == "" || nome_cat_2 == "" || nome_cat_3 == ""){
+		printf("Devi inserire valori validi\n");
+		goto err;
+	}
+
 	memset(param, 0, sizeof(param));
 	param[0].buffer_type = MYSQL_TYPE_VAR_STRING;
 	param[0].buffer = nome_cat_1;
 	param[0].buffer_length = strlen(nome_cat_1);
 
-	param[1].buffer_type = MYSQL_TYPE_VAR_STRING;	
+	param[1].buffer_type = MYSQL_TYPE_VAR_STRING;
 	param[1].buffer = nome_cat_2;
 	param[1].buffer_length = strlen(nome_cat_2);
 
-	param[2].buffer_type = MYSQL_TYPE_VAR_STRING;	
+	param[2].buffer_type = MYSQL_TYPE_VAR_STRING;
 	param[2].buffer = nome_cat_3;
 	param[2].buffer_length = strlen(nome_cat_3);
 
@@ -90,7 +95,7 @@ void run_as_admin(MYSQL *conn, char *s){
 	// printf("size: %d\n", strlen(s) );
 	char header[strlen(s)+1];
 	sprintf(header, "Admin: %s", s);
-	
+
 	while(true){
 		clearScreen(header);
 		printf("1) Visulizza aste aperte\n");
@@ -104,19 +109,19 @@ void run_as_admin(MYSQL *conn, char *s){
 
 		if (cmd == 1){
 			visualizza_aste_aperte(conn, header);
-			input_wait();
+			input_wait("Premi un tasto per continuare...");
 			continue;
 		}
 
 		if (cmd == 2){
 			nuova_asta(conn);
-			input_wait();
+			input_wait("Premi un tasto per continuare...");
 			continue;
 		}
 
 		if (cmd == 4){
 			ins_categoria(conn, header);
-			input_wait();
+			input_wait("Premi un tasto per continuare...");
 			continue;
 		}
 

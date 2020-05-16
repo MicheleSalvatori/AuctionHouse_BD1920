@@ -42,7 +42,7 @@ int getRole(char* username, char* password){
 	param[2].buffer = &role;
 	param[2].buffer_length = sizeof(role);
 
-	if (mysql_stmt_bind_param(login_procedure, param) != 0) { 
+	if (mysql_stmt_bind_param(login_procedure, param) != 0) {
 		print_stmt_error(login_procedure, "Could not bind parameters for login");
 		goto err;
 	}
@@ -56,7 +56,7 @@ int getRole(char* username, char* password){
 	param[0].buffer_type = MYSQL_TYPE_LONG; // OUT
 	param[0].buffer = &role;
 	param[0].buffer_length = sizeof(role);
-	
+
 	if(mysql_stmt_bind_result(login_procedure, param)) {
 		print_stmt_error(login_procedure, "Could not retrieve output parameter");
 		goto err;
@@ -96,10 +96,10 @@ void registraUtente(){
 
 	if (!setup_prepared_stmt(&prepared_stmt, "call inserisci_utente(?,?,?,?,?,?,?,?,?,?,?,?,?,?)", conn)){
 		print_stmt_error(prepared_stmt, "Unable to initialize new_user statement\n");
-		
+
 	}
 	clearScreen("Nuovo Utente");
-	
+
 	printf("INSERSICI I SEGUENTI DATI\n");
 	printf("Codice Fiscale: ");
 	scanf("%s", cf);
@@ -166,7 +166,7 @@ void registraUtente(){
 	param[1].buffer_type = MYSQL_TYPE_VAR_STRING; // IN
 	param[1].buffer = nome;
 	param[1].buffer_length = strlen(nome);
-	
+
 	param[2].buffer_type = MYSQL_TYPE_VAR_STRING; // IN
 	param[2].buffer = cognome;
 	param[2].buffer_length = strlen(cognome);
@@ -178,7 +178,7 @@ void registraUtente(){
 	param[4].buffer_type = MYSQL_TYPE_VAR_STRING; // IN
 	param[4].buffer = cNascita;
 	param[4].buffer_length = strlen(cNascita);
-	
+
 	param[5].buffer_type = MYSQL_TYPE_VAR_STRING; // IN
 	param[5].buffer = indirizzo;
 	param[5].buffer_length = strlen(indirizzo);
@@ -190,7 +190,7 @@ void registraUtente(){
 	param[7].buffer_type = MYSQL_TYPE_VAR_STRING; // IN
 	param[7].buffer = cardNumber;
 	param[7].buffer_length = strlen(cardNumber);
-	
+
 	param[8].buffer_type = MYSQL_TYPE_VAR_STRING; // IN
 	param[8].buffer = dataScadenza;
 	param[8].buffer_length = strlen(dataScadenza);
@@ -202,7 +202,7 @@ void registraUtente(){
 	param[10].buffer_type = MYSQL_TYPE_VAR_STRING; // IN
 	param[10].buffer = cognomeIntestatario;
 	param[10].buffer_length = strlen(cognomeIntestatario);
-	
+
 	param[11].buffer_type = MYSQL_TYPE_VAR_STRING; // IN
 	param[11].buffer = cvv;
 	param[11].buffer_length = strlen(cvv);
@@ -216,17 +216,17 @@ void registraUtente(){
 	param[13].buffer_length = strlen(usr);
 
 
-	if (mysql_stmt_bind_param(prepared_stmt, param) != 0) { 
+	if (mysql_stmt_bind_param(prepared_stmt, param) != 0) {
 		print_stmt_error(prepared_stmt, "Could not bind parameters for new_user");
-		
+
 	}
 
 	if (mysql_stmt_execute(prepared_stmt) != 0) {
 		print_stmt_error(prepared_stmt, "An error occured while create new user. Try again!");
-		
+
 	}else{
 		printf("---- Utente registrato correttamente -----");
-		input_wait();
+		input_wait("Premi un tasto per continuare...");
 		clearScreen("Riepilogo Dati");
 		printf("%s\n", cf);
 		printf("%s\n", nome);
@@ -244,7 +244,7 @@ void registraUtente(){
 		printf("%s\n", pass);
 	}
 	mysql_stmt_close(prepared_stmt);
-	
+
 }
 
 
@@ -255,7 +255,7 @@ int main (int argc, char *argv[]) {
 	if (conn == NULL){
 		fprintf(stderr, "Errore conn\n");
 	}
-	
+
 	login = mysql_real_connect(conn, "localhost" ,"login", "loginUser", "db_prova", 3306, NULL, 0);				// prova
 
 		if (login == NULL) {
@@ -277,11 +277,11 @@ int main (int argc, char *argv[]) {
 	if(cmd1 == 99){
 			printf("-- Bye --\n");
 			exit(1);
-	
+
 	}else if(cmd1 == 1){
-			
+
 			clearScreen("LOGIN");
-			
+
 			printf("Inserisci username: \n> ");
 			scanf("%s", u);
 			fflush(stdin);
@@ -289,17 +289,17 @@ int main (int argc, char *argv[]) {
 			scanf("%s", p);
 			fflush(stdin);
 			printf("\n\n");
-			
+
 			int role = getRole(u,p);
 
 			switch(role){
 
-				case 1:	
+				case 1:
 					run_as_admin(conn, u);
 
 					if (mysql_change_user(conn,"login", "loginUser", "db_prova")){
 						fprintf(stderr, "mysql_change_user() failed\n");
-						input_wait();
+						input_wait("Premi un tasto per continuare...");
 						exit(EXIT_FAILURE);
 						}
 					break;
@@ -309,11 +309,11 @@ int main (int argc, char *argv[]) {
 
 					if (mysql_change_user(conn,"login", "loginUser", "db_prova")){
 						fprintf(stderr, "mysql_change_user() failed\n");
-						input_wait();						
+						input_wait("Premi un tasto per continuare...");
 						exit(EXIT_FAILURE);
-						}	
-					break;					
-				
+						}
+					break;
+
 				case 99:
 					printf("Invalid credentials\nFAILED LOGIN\n");
 					input_wait();
@@ -324,11 +324,11 @@ int main (int argc, char *argv[]) {
 
 	}else if (cmd1 ==2){
 			registraUtente();
-			input_wait();
+			input_wait("Premi un tasto per continuare...");
 			break;					// meglio mettere inputWait
 	}else{
 			printf("\n-- Comando non presente\n\n");
-			input_wait();
+			input_wait("Premi un tasto per continuare...");
 		}
 
 
