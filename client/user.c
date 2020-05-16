@@ -12,8 +12,7 @@
 int cmd, status;
 
 
-void visualizza_cat_1(MYSQL* conn){
-	printf("Visualizza cat 1\n");
+void visualizza_cat_3(MYSQL* conn){
 	MYSQL_STMT *prepared_stmt;
 	int status;
 	
@@ -49,7 +48,6 @@ void visualizza_cat_1(MYSQL* conn){
 
 void visualizza_aste_aperte(MYSQL* conn, char *s){
 	MYSQL_STMT *prepared_stmt;
-	MYSQL_BIND param[1];
 	int status;
 
 	clearScreen(s);

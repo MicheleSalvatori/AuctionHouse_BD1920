@@ -21,5 +21,6 @@ extern void dump_result_set(MYSQL *conn, MYSQL_STMT *stmt, char *title);
 extern void run_as_user(MYSQL *conn, char *s);
 extern void run_as_admin(MYSQL *conn, char *s);
 extern void visualizza_aste_aperte(MYSQL* conn, char *s);
+extern void visualizza_cat_3(MYSQL* conn);
 
 // 

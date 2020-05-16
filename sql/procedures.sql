@@ -6,13 +6,56 @@ CREATE PROCEDURE db_prova.inserisci_utente(IN CF_Utente CHAR(16), IN Nome VARCHA
      Città, numero_carta, data_scadenza, Nome_intestatario, Cognome_intestatario, CVV, Password, username, DEFAULT);
 
 
-
+DELIMITER $$
 CREATE PROCEDURE db_prova.inserisci_categoria(IN Nome_categoria VARCHAR (25), IN Livello INT)
-	INSERT INTO db_prova.categoria VALUES(Nome_categoria, Livello);
+	BEGIN
+	DECLARE temp_1 INT;
+    DECLARE temp_2 INT;
+    DECLARE temp_3 INT;
+    
+    SELECT COUNT(*)
+    FROM db_prova.categoria
+    WHERE categoria.Nome_Categoria = Nome_cat_1 and categoria.Livello = 1
+    INTO temp_1;
+    
+    SELECT COUNT(*)
+    FROM db_prova.categoria
+    WHERE categoria.Nome_Categoria = Nome_cat_2 and categoria.Livello = 2
+    INTO temp_2;
+    
+    SELECT COUNT(*)
+    FROM db_prova.categoria
+    WHERE categoria.Nome_Categoria = Nome_cat_3 and categoria.Livello = 3
+    INTO temp_3;
+    
+    if temp_1 = 0 then
+    INSERT INTO db_prova.categoria VALUES  (Nome_cat_1, 1);
+    elseif temp_2 = 0 then
+    INSERT INTO db_prova.categoria VALUES (Nome_cat_2, 2);
+    elseif temp_3 = 0 then
+    INSERT INTO db_prova.categoria VALUES (Nome_cat_3, 3);
+    
+	end if;
+    
+    call db_prova.collega_categorie(Nome_cat_1, Nome_cat_2);
+    call db_prova.collega_categorie(Nome_cat_2, Nome_cat_3);
+    
+END $$
+DELIMITER ;
 
 
+DELIMITER $$
 CREATE PROCEDURE db_prova.collega_categorie (IN Nome_categoria VARCHAR(25), IN Nome_sub_categoria VARCHAR(25))
-	INSERT INTO db_prova.catIndex VALUES (Nome_categoria, Nome_sub_categoria);
+BEGIN
+    DECLARE temp_1, temp_2 INT;
+    
+    SELECT COUNT(*) FROM db_prova.catIndex WHERE catIndex.Categoria = Nome_categoria and catIndex.SubCategoria = Nome_sub_categoria INTO temp_1;
+    
+    if temp_1 = 0 then
+    INSERT INTO db_prova.catIndex VALUES (Nome_categoria, Nome_sub_categoria);
+    end if;
+END $$
+DELIMITER ;
 
 
 

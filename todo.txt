@@ -45,7 +45,7 @@ regola aziendale? -> l'utente che possiede l'asta con l'offerta attualmente più
 
 --> INSERISCI_OGGETTO -> cambiare decimal in VARCHAR(15);
 
---> VISUALIZZARE LE CATEGORIE procedura, trovare modo che le stampi cosi
+--> VISUALIZZARE LE CATEGORIE procedura, trovare modo che le stampi cosi		-> non serve lo fa visualizza_cat_3
 	
 	CAT_1 -> CAT_2 -> CAT_3;
 

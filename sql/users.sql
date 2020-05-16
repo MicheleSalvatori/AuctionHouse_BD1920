@@ -11,3 +11,5 @@ GRANT EXECUTE ON PROCEDURE db_prova.visualizza_cat_1 TO 'user'@'localhost';
 CREATE USER 'admin'@'localhost' IDENTIFIED BY 'admin';
 GRANT EXECUTE ON PROCEDURE db_prova.inserisci_oggetto TO 'admin'@'localhost';
 GRANT EXECUTE ON PROCEDURE db_prova.visualizza_aste_aperte TO 'admin'@'localhost';
+GRANT EXECUTE ON PROCEDURE db_prova.visualizza_cat_3 TO 'admin'@'localhost';
+GRANT EXECUTE ON PROCEDURE db_prova.inserisci_categoria TO 'admin'@'localhost';
