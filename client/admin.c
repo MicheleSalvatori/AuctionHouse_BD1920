@@ -35,7 +35,7 @@ void ins_categoria(MYSQL *conn, char *s){
 	printf("Categoria Livello 2: ");
 	scanf("%[^\n]", nome_cat_2);
 	fflush(stdin);
-
+// TODO: aggiustare procedure inserisci_categoria in procedures.sql
 	printf("Categoria Livello 3: ");
 	scanf("%[^\n]", nome_cat_3);
 	fflush(stdin);
@@ -43,8 +43,8 @@ void ins_categoria(MYSQL *conn, char *s){
 	printf("\nRiepilogo dati: %s->%s->%s", nome_cat_1, nome_cat_2, nome_cat_3);
 	input_wait("Premi invio per confermare...");
 
-	// controlli su input
-	if (nome_cat_1 == "" || nome_cat_2 == "" || nome_cat_3 == ""){
+	// controlli su input //TODO non funzionano tanto -> Valutare uso funzione getInput di Pellegrini
+	if (nome_cat_1 == " " || nome_cat_2 == " " || nome_cat_3 == " "){
 		printf("Devi inserire valori validi\n");
 		goto err;
 	}
@@ -82,6 +82,53 @@ void ins_categoria(MYSQL *conn, char *s){
 	return;
 }
 
+void ins_admin(MYSQL *conn){
+	MYSQL_STMT *prepared_stmt;
+	MYSQL_BIND param[1];
+	char username[255];
+
+
+	if (!setup_prepared_stmt(&prepared_stmt, "call nuovo_admin(?)", conn)){
+		print_stmt_error(prepared_stmt, "Impossibile nominare un nuovo amministratore");
+		goto err;
+	}
+
+	clearScreen("Nuovo amministratore");
+	printf("Username del nuovo amministratore: ");
+	scanf("%[^\n]", username);
+	fflush(stdin);
+
+	// controllo input
+	if (username == ""){
+		printf("Non hai inserito alcun username\n");
+		input_wait("");
+		goto err;
+	}
+
+	memset(param, 0, sizeof(param));
+	param[0].buffer_type = MYSQL_TYPE_VAR_STRING;
+	param[0].buffer = username;
+	param[0].buffer_length = strlen(username);
+
+	if (mysql_stmt_bind_param(prepared_stmt, param)!=0){
+		print_stmt_error(prepared_stmt, "Impossibile inizializzare i parametri per il nuovo amministratore");
+		goto err;
+	}
+
+	if (mysql_stmt_execute(prepared_stmt)!=0) {
+		print_stmt_error(prepared_stmt, "Impossibile eseguire procedura nuovo amministratore");
+		goto err;
+	}else{
+		printf("Amministratore aggiunto correttamente\n" );
+		mysql_stmt_close(prepared_stmt);
+		return;
+	}
+
+	err:
+	mysql_stmt_close(prepared_stmt);
+	return;
+}
+
 
 
 
@@ -102,6 +149,7 @@ void run_as_admin(MYSQL *conn, char *s){
 		printf("2) Inserisci nuova asta\n");
 		printf("3) Inserisci Oggetto\n");
 		printf("4) Crea nuova categoria\n");
+		printf("5) Nuovo amminastrore\n");
 		printf("99) Logout\n");
 		printf("Inserisci un comando -> ");
 		scanf("%i", &cmd);
@@ -121,6 +169,12 @@ void run_as_admin(MYSQL *conn, char *s){
 
 		if (cmd == 4){
 			ins_categoria(conn, header);
+			input_wait("Premi un tasto per continuare...");
+			continue;
+		}
+
+		if (cmd == 5){
+			ins_admin(conn);
 			input_wait("Premi un tasto per continuare...");
 			continue;
 		}
