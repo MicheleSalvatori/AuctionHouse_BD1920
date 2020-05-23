@@ -48,7 +48,7 @@ void visualizza_oggetti(MYSQL* conn){
 
 }
 
-void crea_asta(MYSQL *conn){				// TODO non ritorna nulla dio paperino
+void crea_asta(MYSQL *conn){				// TODO non ritorna nulla dio paperirino
 	MYSQL_STMT *prepared_stmt;
 	MYSQL_BIND param[2];
 	char nome[26], cat[26];
