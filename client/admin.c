@@ -48,10 +48,10 @@ void visualizza_oggetti(MYSQL* conn){
 
 }
 
-void crea_asta(MYSQL *conn){				// TODO non ritorna nulla dio paperirino
+void crea_asta(MYSQL *conn){				// TODO non ritorna la stringa dio paperirino -> IDEA: inglobare get_cat_3 nella procedura inserisci_oggetto
 	MYSQL_STMT *prepared_stmt;
 	MYSQL_BIND param[2];
-	char nome[26], cat[26];
+	char nome[26], cat[25];
 
 	clearScreen("Apertura asta");
 	visualizza_oggetti(conn);
@@ -73,7 +73,6 @@ void crea_asta(MYSQL *conn){				// TODO non ritorna nulla dio paperirino
 	param[1].buffer = cat;
 	param[1].buffer_length = sizeof(cat);
 
-
 	if (mysql_stmt_bind_param(prepared_stmt, param)!=0){
 		print_stmt_error(prepared_stmt, "Imposibbile inizializzare parametri per get_cat_3");
 		goto err;
@@ -83,6 +82,11 @@ void crea_asta(MYSQL *conn){				// TODO non ritorna nulla dio paperirino
 		print_stmt_error(prepared_stmt, "Impossibile eseguire procedura get_cat_3");
 		goto err;
 	}
+
+	memset(param, 0, sizeof(param));
+		param[0].buffer_type = MYSQL_TYPE_VAR_STRING; // OUT
+		param[0].buffer = cat;
+		param[0].buffer_length = sizeof(cat);
 
 	if(mysql_stmt_bind_result(prepared_stmt, param)) {
 		print_stmt_error(prepared_stmt, "Could not retrieve output parameter");
