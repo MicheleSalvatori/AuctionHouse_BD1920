@@ -1,7 +1,6 @@
 #include <mysql/mysql.h>
 #include <stdbool.h>				// senza bool non è dichiarato, si usa _Bool
 
-
 extern MYSQL *conn;
 extern MYSQL *login;
 extern char u[255];
@@ -23,4 +22,4 @@ extern void run_as_admin(MYSQL *conn, char *s);
 extern void visualizza_aste_aperte(MYSQL* conn, char *s);
 extern void visualizza_cat_3(MYSQL* conn);
 
-// 
+//

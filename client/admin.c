@@ -10,9 +10,174 @@
 #define true 1
 #define false 0
 int cmd;
+// TODO in qualsiasi azione che si vuole fare inserire opzione quit per uscire e tornare al menu (se si è entrati per sbaglio ad esempio)
+
+void visualizza_oggetti(MYSQL* conn){
+	MYSQL_STMT *prepared_stmt;
+	int status;
+
+	if(!setup_prepared_stmt(&prepared_stmt, "call visualizza_oggetti()", conn)){
+		print_stmt_error(prepared_stmt, "Impossibilie inizializzare procedura per visualizzare gli oggetti già presenti");
+		goto err;
+	}
+	if (mysql_stmt_execute(prepared_stmt)!=0){
+		print_stmt_error(prepared_stmt, "Impossibile eseguire procedura visualizza oggetti");
+		goto err;
+	}
+	// results
+	do{
+		if (conn->server_status & SERVER_PS_OUT_PARAMS){
+			goto next;
+		}
+
+		else{
+			dump_result_set(conn, prepared_stmt, "Oggetti");
+		}
+
+		next:
+		status = mysql_stmt_next_result(prepared_stmt);
+		if (status > 0)
+			finish_with_stmt_error(conn, prepared_stmt, "Unexpected condition", true);
+
+	} while (status == 0);
+	mysql_stmt_close(prepared_stmt);
+
+	err:
+	mysql_stmt_close(prepared_stmt);
+	return;
+
+}
+
+void crea_asta(MYSQL *conn){				// TODO non ritorna nulla dio paperino
+	MYSQL_STMT *prepared_stmt;
+	MYSQL_BIND param[2];
+	char nome[26], cat[26];
+
+	clearScreen("Apertura asta");
+	visualizza_oggetti(conn);
+
+	if (!setup_prepared_stmt(&prepared_stmt, "call get_cat_3(?,?)", conn)){
+	print_stmt_error(prepared_stmt, "Impossibile inizializzare procedura get_cat_3");
+	goto err;
+	}
+
+	memset(param, 0, sizeof(param));
+	printf("Nome oggetto: ");
+	scanf("%s\n", nome );
+	fflush(stdin);
+	param[0].buffer_type = MYSQL_TYPE_VAR_STRING;
+	param[0].buffer = nome;
+	param[0].buffer_length = strlen(nome);
+
+	param[1].buffer_type = MYSQL_TYPE_VAR_STRING; // OUT
+	param[1].buffer = cat;
+	param[1].buffer_length = sizeof(cat);
+
+
+	if (mysql_stmt_bind_param(prepared_stmt, param)!=0){
+		print_stmt_error(prepared_stmt, "Imposibbile inizializzare parametri per get_cat_3");
+		goto err;
+	}
+
+	if (mysql_stmt_execute(prepared_stmt)!=0){
+		print_stmt_error(prepared_stmt, "Impossibile eseguire procedura get_cat_3");
+		goto err;
+	}
+
+	if(mysql_stmt_bind_result(prepared_stmt, param)) {
+		print_stmt_error(prepared_stmt, "Could not retrieve output parameter");
+		goto err;
+	}
+	if(mysql_stmt_fetch(prepared_stmt)) {
+		print_stmt_error(prepared_stmt, "Could not buffer results");
+		goto err;
+	}
+
+	printf("%s\n", cat);
+	input_wait("");
+	mysql_stmt_close(prepared_stmt);
+	return;
+
+err:
+mysql_stmt_close(prepared_stmt);
+return;
+}
 
 void nuova_asta(MYSQL *conn){
-	clearScreen("nuova_asta");
+	MYSQL_STMT *prepared_stmt;
+	MYSQL_BIND param[4];
+	int status;
+	char nome[25], dimensioni[25], descrizione[255], categoria[25], risposta[5];
+
+	clearScreen("Nuova asta");
+	visualizza_oggetti(conn);
+	printf("L'oggetto da inserire è presente in questa lista? [SI/NO] -> ");
+	scanf("%s", risposta);
+	fflush(stdin);
+
+	// if(!strcasecmp(risposta, "quit")){
+	// 	goto err;}
+
+	if(!strcasecmp(risposta, "no")){
+		clearScreen("Creazione oggetto");
+
+		visualizza_cat_3(conn);
+
+		if (!setup_prepared_stmt(&prepared_stmt, "call inserisci_Tipo(?,?,?,?)", conn)){
+		print_stmt_error(prepared_stmt, "Impossibile inizializzare procedura inserimento tipo oggetto");
+		goto err;
+		}
+
+		printf("Nome oggetto: ");
+		scanf("%[^\n]", nome);
+		fflush(stdin);
+		printf("Dimensioni: ");
+		scanf("%[^\n]", dimensioni);
+		fflush(stdin);
+		printf("Descrizione: ");
+		scanf("%[^\n]", descrizione);
+		fflush(stdin);
+		printf("Categoria 3: ");
+		scanf("%[^\n]", categoria);
+		fflush(stdin);
+
+
+		memset(param, 0, sizeof(param));
+		param[0].buffer_type = MYSQL_TYPE_VAR_STRING;
+		param[0].buffer = categoria;
+		param[0].buffer_length = strlen(categoria);
+		param[1].buffer_type = MYSQL_TYPE_VAR_STRING;
+		param[1].buffer = nome;
+		param[1].buffer_length = strlen(nome);
+		param[2].buffer_type = MYSQL_TYPE_VAR_STRING;
+		param[2].buffer = dimensioni;
+		param[2].buffer_length = strlen(dimensioni);
+		param[3].buffer_type = MYSQL_TYPE_VAR_STRING;
+		param[3].buffer = descrizione;
+		param[3].buffer_length = strlen(descrizione);
+
+		if (mysql_stmt_bind_param(prepared_stmt, param)!=0){
+			print_stmt_error(prepared_stmt, "Imposibbile inizializzare parametri per inseriemento nuovo oggetto");
+			goto err;
+		}
+
+		if (mysql_stmt_execute(prepared_stmt)!=0){
+			print_stmt_error(prepared_stmt, "Impossibile eseguire procedura inseriemento nuovo oggetto");
+			goto err;
+		} else{
+			printf("Oggetto aggiunto correttamente\n");
+			mysql_stmt_close(prepared_stmt);
+		}
+	}
+
+	else if (!strcasecmp(risposta, "si")){
+		crea_asta(conn);
+	}
+
+	return;
+	err:
+	mysql_stmt_close(prepared_stmt);
+	return;
 
 }
 
@@ -20,10 +185,11 @@ void ins_categoria(MYSQL *conn, char *s){
 	MYSQL_STMT *prepared_stmt;
 	MYSQL_BIND param[3];
 
+
 	char nome_cat_1[25], nome_cat_2[25], nome_cat_3[25];
 
-	if (!setup_prepared_stmt(&prepared_stmt, "call prova(?,?,?)",conn)){
-		print_stmt_error(prepared_stmt, "Impossibile inizializzare statement per inserire categoria\n");
+	if (!setup_prepared_stmt(&prepared_stmt, "call inserisci_categoria(?,?,?)",conn)){
+		print_stmt_error(prepared_stmt, "Impossibile inizializzare la procedura per inserire categoria");
 	}
 	clearScreen(s);
 

@@ -58,12 +58,20 @@ END $$
 DELIMITER ;
 
 
+CREATE PROCEDURE db_prova.visualizza_oggetti()
+	SELECT * FROM db_prova.tipo_oggetto;
 
-CREATE PROCEDURE db_prova.inserisci_Tipo (IN Nome_categoria VARCHAR(25), IN Nome_Oggetto VARCHAR(25), IN Dimensioni VARCHAR(25), IN Descrizione TEXT)
-	INSERT INTO db_prova.tipo_oggetto VALUES (Nome_categoria, Nome_Oggetto, Dimensioni, Descrizione);
-
-# trigger categoria è livello 3
-
+DELIMITER $$
+CREATE PROCEDURE db_prova.inserisci_Tipo (IN Nome_categoria VARCHAR(25), IN Nome_Oggetto VARCHAR(25), IN Dimensioni VARCHAR(25), IN Descrizione VARCHAR(255))
+BEGIN
+	IF (SELECT NOT EXISTS (SELECT *
+			 FROM db_prova.categoria
+			 WHERE Livello = "3" and categoria.Nome_Categoria = Nome_Categoria))
+	THEN
+			SIGNAL SQLSTATE '02000' SET MESSAGE_TEXT = 'Attenzione categoria non di livello 3';
+	ELSE INSERT INTO db_prova.tipo_oggetto VALUES (Nome_categoria, Nome_Oggetto, Dimensioni, Descrizione);
+			END IF;
+END $$
 
 CREATE PROCEDURE db_prova.visualizza_cat_1()
 	SELECT Nome_Categoria
@@ -83,7 +91,6 @@ CREATE PROCEDURE db_prova.visualizza_cat_2()
 									  FROM db_prova.categoria
 									  WHERE Livello = "2") ;
 
-## procedura visualizza oggetti in cat 3 (input nome cat)
 
 CREATE PROCEDURE db_prova.visualizza_cat_3()
 
@@ -99,7 +106,7 @@ WHERE CC.Categoria IN (SELECT Nome_Categoria
 																								         	WHERE Livello = "3") ;
 
 
-CREATE PROCEDURE db_prova.inserisci_oggetto(IN id VARCHAR(25), IN colore VARCHAR(15), IN prezzo VARCHAR(15), IN condizione VARCHAR(30),
+CREATE PROCEDURE db_prova.inserisci_oggetto(IN id VARCHAR(25), IN colore VARCHAR(25), IN prezzo VARCHAR(15), IN condizione VARCHAR(30),
 	IN Data_termine DATETIME, IN tipo VARCHAR(25), IN Categoria VARCHAR(25))
 
 	INSERT INTO db_prova.oggetti VALUES (id, colore, prezzo, condizione, Data_termine, prezzo, tipo, Categoria);
