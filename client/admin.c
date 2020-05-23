@@ -173,8 +173,8 @@ void nuova_asta(MYSQL *conn){
 			mysql_stmt_close(prepared_stmt);
 		}
 	}
-
-	else if (!strcasecmp(risposta, "si")){
+// TODO se riaccedo nuovamente a "nuova asta" con risposta si -> dump core
+	if (!strcasecmp(risposta, "si")){
 		crea_asta(conn);
 	}
 
