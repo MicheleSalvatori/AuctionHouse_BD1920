@@ -30,3 +30,13 @@ CREATE TRIGGER db_prova.check_valid_dataScadenza BEFORE INSERT ON db_prova.utent
 
 
     END $$
+
+	CREATE TRIGGER db_prova.check_exist_tipo BEFORE INSERT ON db_prova.oggetto
+			FOR EACH ROW
+			BEGIN
+				DECLARE temp_int INT;
+		        SELECT count(*) FROM db_prova.tipo_oggetto WHERE Nome_Oggetto = NEW.Tipo INTO temp_int;
+		        IF (temp_int = 0) THEN
+		        SIGNAL SQLSTATE '02000' SET MESSAGE_TEXT = "Tipo oggetto non presente nel database";
+		        END IF;
+			END $$

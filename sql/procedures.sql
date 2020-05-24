@@ -106,8 +106,15 @@ WHERE CC.Categoria IN (SELECT Nome_Categoria
 																								         	WHERE Livello = "3") ;
 
 
-CREATE PROCEDURE db_prova.inserisci_oggetto(IN id VARCHAR(25), IN colore VARCHAR(25), IN prezzo VARCHAR(15), IN condizione VARCHAR(30),
-	IN Data_termine DATETIME, IN tipo VARCHAR(25), IN Categoria VARCHAR(25))
+CREATE PROCEDURE db_prova.inserisci_oggetto(IN id VARCHAR(25), IN colore VARCHAR(25), IN prezzo VARCHAR(15), IN condizione INT, IN tipo VARCHAR(25))
+BEGIN
+	DECLARE categoria VARCHAR(25);
+    IF (condizione <1 OR condizione>5) THEN SIGNAL SQLSTATE '02000' SET MESSAGE_TEXT = "Condizione non accettabile";
+    ELSE
+    SELECT Nome_categoria FROM db_prova.tipo_oggetto WHERE Nome_Oggetto = tipo INTO categoria;
+	INSERT INTO db_prova.oggetto VALUES (id, colore, prezzo, condizione, "2020/05/25 00:00:00", prezzo, upper(tipo), categoria);
+	END IF;
+END
 
 	INSERT INTO db_prova.oggetti VALUES (id, colore, prezzo, condizione, Data_termine, prezzo, tipo, Categoria);
 

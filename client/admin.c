@@ -9,7 +9,6 @@
 #define fflush(stdin) while ((getchar()) != '\n')
 #define true 1
 #define false 0
-int cmd;
 // TODO in qualsiasi azione che si vuole fare inserire opzione quit per uscire e tornare al menu (se si è entrati per sbaglio ad esempio)
 
 void visualizza_oggetti(MYSQL* conn){
@@ -50,28 +49,58 @@ void visualizza_oggetti(MYSQL* conn){
 
 void crea_asta(MYSQL *conn){				// TODO non ritorna la stringa dio paperirino -> IDEA: inglobare get_cat_3 nella procedura inserisci_oggetto
 	MYSQL_STMT *prepared_stmt;
-	MYSQL_BIND param[2];
-	char nome[26], cat[25];
+	MYSQL_BIND param[5];
+	char id[25], colore[25], prezzo[15], tipo[25];
+	int condizione;
 
-	clearScreen("Apertura asta");
-	visualizza_oggetti(conn);
+	// clearScreen("Apertura asta");
+	// visualizza_oggetti(conn);
 
-	if (!setup_prepared_stmt(&prepared_stmt, "call get_cat_3(?,?)", conn)){
-	print_stmt_error(prepared_stmt, "Impossibile inizializzare procedura get_cat_3");
+	if (!setup_prepared_stmt(&prepared_stmt, "call inserisci_oggetto(?,?,?,?,?)", conn)){
+	print_stmt_error(prepared_stmt, "Impossibile inizializzare procedura per inserire una nuova asta");
 	goto err;
 	}
 
 	memset(param, 0, sizeof(param));
-	printf("Nome oggetto: ");
-	scanf("%s\n", nome );
+	printf("ID: ");
+	scanf("%[^\n]", id );
 	fflush(stdin);
-	param[0].buffer_type = MYSQL_TYPE_VAR_STRING;
-	param[0].buffer = nome;
-	param[0].buffer_length = strlen(nome);
+	printf("Colore: ");
+	scanf("%[^\n]", colore);
+	fflush(stdin);
+	printf("Prezzo: ");
+	scanf("%[^\n]", prezzo);
+	fflush(stdin);
+	printf("Scegli la condizione dell'oggetto:\n1) Nuovo\t2) Come nuovo\t3) Buone condizioni\n4) Usurato\t5) Non funzionanten\n-> ");
+	scanf("%d", &condizione);
+	fflush(stdin);
+	printf("Inserisci il nome dell'oggetto tra quelli elencati: ");
+	scanf("%[^\n]", tipo);
+	fflush(stdin);
 
-	param[1].buffer_type = MYSQL_TYPE_VAR_STRING; // OUT
-	param[1].buffer = cat;
-	param[1].buffer_length = sizeof(cat);
+	param[0].buffer_type = MYSQL_TYPE_VAR_STRING;
+	param[0].buffer = id;
+	param[0].buffer_length = strlen(id);
+
+	param[1].buffer_type = MYSQL_TYPE_VAR_STRING;
+	param[1].buffer = colore;
+	param[1].buffer_length = strlen(colore);
+
+	param[2].buffer_type = MYSQL_TYPE_VAR_STRING;
+	param[2].buffer = prezzo;
+	param[2].buffer_length = strlen(prezzo);
+
+	param[3].buffer_type = MYSQL_TYPE_LONG;
+	param[3].buffer = &condizione;
+	param[3].buffer_length = sizeof(condizione);
+
+	// param[4].buffer_type = MYSQL_TYPE_VAR_STRING;		// TODO manca inserimento data
+	// param[4].buffer = "2020/05/25 00:00:00";
+	// param[4].buffer_length = sizeof("2020/05/25 00:00:00");
+
+	param[4].buffer_type = MYSQL_TYPE_VAR_STRING;
+	param[4].buffer = tipo;
+	param[4].buffer_length = strlen(tipo);
 
 	if (mysql_stmt_bind_param(prepared_stmt, param)!=0){
 		print_stmt_error(prepared_stmt, "Imposibbile inizializzare parametri per get_cat_3");
@@ -81,24 +110,10 @@ void crea_asta(MYSQL *conn){				// TODO non ritorna la stringa dio paperirino ->
 	if (mysql_stmt_execute(prepared_stmt)!=0){
 		print_stmt_error(prepared_stmt, "Impossibile eseguire procedura get_cat_3");
 		goto err;
+	}else {
+		printf("Asta creata correttamente\n");
 	}
 
-	memset(param, 0, sizeof(param));
-		param[0].buffer_type = MYSQL_TYPE_VAR_STRING; // OUT
-		param[0].buffer = cat;
-		param[0].buffer_length = sizeof(cat);
-
-	if(mysql_stmt_bind_result(prepared_stmt, param)) {
-		print_stmt_error(prepared_stmt, "Could not retrieve output parameter");
-		goto err;
-	}
-	if(mysql_stmt_fetch(prepared_stmt)) {
-		print_stmt_error(prepared_stmt, "Could not buffer results");
-		goto err;
-	}
-
-	printf("%s\n", cat);
-	input_wait("");
 	mysql_stmt_close(prepared_stmt);
 	return;
 
@@ -108,9 +123,9 @@ return;
 }
 
 void nuova_asta(MYSQL *conn){
+	// TODO se riaccedo nuovamente a "nuova asta", dopo un po -> dump core -> FIXATO se richiamavo nuovamente visualizza_oggetto dava errore, non so perchè. sistemare layout ora
 	MYSQL_STMT *prepared_stmt;
 	MYSQL_BIND param[4];
-	int status;
 	char nome[25], dimensioni[25], descrizione[255], categoria[25], risposta[5];
 
 	clearScreen("Nuova asta");
@@ -119,7 +134,7 @@ void nuova_asta(MYSQL *conn){
 	scanf("%s", risposta);
 	fflush(stdin);
 
-	// if(!strcasecmp(risposta, "quit")){
+	// TODO if(!strcasecmp(risposta, "quit")){
 	// 	goto err;}
 
 	if(!strcasecmp(risposta, "no")){
@@ -173,12 +188,11 @@ void nuova_asta(MYSQL *conn){
 			mysql_stmt_close(prepared_stmt);
 		}
 	}
-// TODO se riaccedo nuovamente a "nuova asta" con risposta si -> dump core
 	if (!strcasecmp(risposta, "si")){
 		crea_asta(conn);
+		return;
 	}
 
-	return;
 	err:
 	mysql_stmt_close(prepared_stmt);
 	return;
@@ -303,7 +317,7 @@ void ins_admin(MYSQL *conn){
 
 
 void run_as_admin(MYSQL *conn, char *s){
-
+	int cmd;
 	if (mysql_change_user(conn,"admin", "admin", "db_prova")){
 		fprintf(stderr, "mysql_change_user() failed\n");
 		exit(EXIT_FAILURE);
