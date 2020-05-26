@@ -68,7 +68,7 @@ BEGIN
 			 FROM db_prova.categoria
 			 WHERE Livello = "3" and categoria.Nome_Categoria = Nome_Categoria))
 	THEN
-			SIGNAL SQLSTATE '02000' SET MESSAGE_TEXT = 'Attenzione categoria non di livello 3';
+			SIGNAL SQLSTATE '02000' SET MESSAGE_TEXT = 'Attenzione categoria non di livello 3 non esistente';
 	ELSE INSERT INTO db_prova.tipo_oggetto VALUES (Nome_categoria, Nome_Oggetto, Dimensioni, Descrizione);
 			END IF;
 END $$
@@ -106,13 +106,14 @@ WHERE CC.Categoria IN (SELECT Nome_Categoria
 																								         	WHERE Livello = "3") ;
 
 
-CREATE PROCEDURE db_prova.inserisci_oggetto(IN id VARCHAR(25), IN colore VARCHAR(25), IN prezzo VARCHAR(15), IN condizione INT, IN tipo VARCHAR(25))
-BEGIN
+CREATE PROCEDURE db_prova.inserisci_oggetto(IN id VARCHAR(25), IN colore VARCHAR(25), IN prezzo VARCHAR(15), IN condizione INT, IN tipo VARCHAR(25), IN scadenza VARCHAR(9))
 	DECLARE categoria VARCHAR(25);
+    DECLARE finale_scadenza DATETIME;
     IF (condizione <1 OR condizione>5) THEN SIGNAL SQLSTATE '02000' SET MESSAGE_TEXT = "Condizione non accettabile";
     ELSE
     SELECT Nome_categoria FROM db_prova.tipo_oggetto WHERE Nome_Oggetto = tipo INTO categoria;
-	INSERT INTO db_prova.oggetto VALUES (id, colore, prezzo, condizione, "2020/05/25 00:00:00", prezzo, upper(tipo), categoria);
+    SET finale_scadenza = addtime(NOW(), time_format(scadenza, "%T"));
+	INSERT INTO db_prova.oggetto VALUES (upper(id), colore, prezzo, condizione, finale_scadenza, prezzo, upper(tipo), categoria);
 	END IF;
 END
 

@@ -9,8 +9,7 @@
 #define fflush(stdin) while ((getchar()) != '\n')
 #define true 1
 #define false 0
-// TODO in qualsiasi azione che si vuole fare inserire opzione quit per uscire e tornare al menu (se si è entrati per sbaglio ad esempio)
-
+// TODO visualizza_oggetti causa free dump dopo un po. dump_result_set con quella di luca
 void visualizza_oggetti(MYSQL* conn){
 	MYSQL_STMT *prepared_stmt;
 	int status;
@@ -47,22 +46,25 @@ void visualizza_oggetti(MYSQL* conn){
 
 }
 
-void crea_asta(MYSQL *conn){				// TODO non ritorna la stringa dio paperirino -> IDEA: inglobare get_cat_3 nella procedura inserisci_oggetto
+void crea_asta(MYSQL *conn){
 	MYSQL_STMT *prepared_stmt;
-	MYSQL_BIND param[5];
-	char id[25], colore[25], prezzo[15], tipo[25];
+	MYSQL_BIND param[6];
+	MYSQL_TIME time_st;
+	char id[25], colore[25], prezzo[15], tipo[25], data[9];
 	int condizione;
 
-	// clearScreen("Apertura asta");
-	// visualizza_oggetti(conn);
-
-	if (!setup_prepared_stmt(&prepared_stmt, "call inserisci_oggetto(?,?,?,?,?)", conn)){
+	if (!setup_prepared_stmt(&prepared_stmt, "call inserisci_oggetto(?,?,?,?,?,?)", conn)){
 	print_stmt_error(prepared_stmt, "Impossibile inizializzare procedura per inserire una nuova asta");
 	goto err;
 	}
 
+	printf("Seleziona oggetto da inserire tra quelli elencati [nome]: ");
+	scanf("%[^\n]", tipo);
+	fflush(stdin);
+
+	clearScreen("Nuova asta");
 	memset(param, 0, sizeof(param));
-	printf("ID: ");
+	printf("ID [alfanumerico]: ");
 	scanf("%[^\n]", id );
 	fflush(stdin);
 	printf("Colore: ");
@@ -71,11 +73,14 @@ void crea_asta(MYSQL *conn){				// TODO non ritorna la stringa dio paperirino ->
 	printf("Prezzo: ");
 	scanf("%[^\n]", prezzo);
 	fflush(stdin);
+	clearScreen("Condizione oggetto");
 	printf("Scegli la condizione dell'oggetto:\n1) Nuovo\t2) Come nuovo\t3) Buone condizioni\n4) Usurato\t5) Non funzionanten\n-> ");
 	scanf("%d", &condizione);
 	fflush(stdin);
-	printf("Inserisci il nome dell'oggetto tra quelli elencati: ");
-	scanf("%[^\n]", tipo);
+
+	time_st = getDate();
+
+	sprintf(data, "%d:%02d",time_st.day * 24 + time_st.hour, time_st.minute);
 	fflush(stdin);
 
 	param[0].buffer_type = MYSQL_TYPE_VAR_STRING;
@@ -94,21 +99,21 @@ void crea_asta(MYSQL *conn){				// TODO non ritorna la stringa dio paperirino ->
 	param[3].buffer = &condizione;
 	param[3].buffer_length = sizeof(condizione);
 
-	// param[4].buffer_type = MYSQL_TYPE_VAR_STRING;		// TODO manca inserimento data
-	// param[4].buffer = "2020/05/25 00:00:00";
-	// param[4].buffer_length = sizeof("2020/05/25 00:00:00");
-
 	param[4].buffer_type = MYSQL_TYPE_VAR_STRING;
 	param[4].buffer = tipo;
 	param[4].buffer_length = strlen(tipo);
 
+	param[5].buffer_type = MYSQL_TYPE_VAR_STRING;
+	param[5].buffer = data;
+	param[5].buffer_length = strlen(data);
+
 	if (mysql_stmt_bind_param(prepared_stmt, param)!=0){
-		print_stmt_error(prepared_stmt, "Imposibbile inizializzare parametri per get_cat_3");
+		print_stmt_error(prepared_stmt, "Imposibbile inizializzare parametri per la nuova asta");
 		goto err;
 	}
 
 	if (mysql_stmt_execute(prepared_stmt)!=0){
-		print_stmt_error(prepared_stmt, "Impossibile eseguire procedura get_cat_3");
+		print_stmt_error(prepared_stmt, "Impossibile eseguire procedura per creare nuova asta");
 		goto err;
 	}else {
 		printf("Asta creata correttamente\n");
@@ -123,13 +128,12 @@ return;
 }
 
 void nuova_asta(MYSQL *conn){
-	// TODO se riaccedo nuovamente a "nuova asta", dopo un po -> dump core -> FIXATO se richiamavo nuovamente visualizza_oggetto dava errore, non so perchè. sistemare layout ora
 	MYSQL_STMT *prepared_stmt;
 	MYSQL_BIND param[4];
 	char nome[25], dimensioni[25], descrizione[255], categoria[25], risposta[5];
 
 	clearScreen("Nuova asta");
-	visualizza_oggetti(conn);
+	// visualizza_oggetti(conn);
 	printf("L'oggetto da inserire è presente in questa lista? [SI/NO] -> ");
 	scanf("%s", risposta);
 	fflush(stdin);

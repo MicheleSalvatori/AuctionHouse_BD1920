@@ -40,3 +40,14 @@ CREATE TRIGGER db_prova.check_valid_dataScadenza BEFORE INSERT ON db_prova.utent
 		        SIGNAL SQLSTATE '02000' SET MESSAGE_TEXT = "Tipo oggetto non presente nel database";
 		        END IF;
 			END $$
+
+	CREATE TRIGGER db_prova.check_scadenza_asta BEFORE INSERT ON db_prova.oggetto
+			FOR EACH ROW
+		    BEGIN
+		    DECLARE h INT;
+
+				SELECT TIMESTAMPDIFF(SECOND,NOW(), NEW.Data_termine) INTO h;
+		        IF (h < 24*60*60 OR h>24*7*60*60)
+		        THEN SIGNAL SQLSTATE '02000' SET MESSAGE_TEXT = "Attenzione: l'asta deve durare almeno 1 GIORNO e massimo 7 GIORNI";
+		        END IF;
+			END $$

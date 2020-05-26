@@ -17,8 +17,9 @@ temp_role	/home/mich/Scrivania/prog_bd/sql/procedures.sql	/^	DECLARE temp_role L
 fflush	/home/mich/Scrivania/prog_bd/client/admin.c	/^#define fflush(/;"	macro	line:9	file:
 true	/home/mich/Scrivania/prog_bd/client/admin.c	/^#define true /;"	macro	line:10	file:
 false	/home/mich/Scrivania/prog_bd/client/admin.c	/^#define false /;"	macro	line:11	file:
-cmd	/home/mich/Scrivania/prog_bd/client/admin.c	/^int cmd;$/;"	variable	line:12
-nuova_asta	/home/mich/Scrivania/prog_bd/client/admin.c	/^void nuova_asta(MYSQL *conn){$/;"	function	line:14	signature:(MYSQL *conn)
-ins_categoria	/home/mich/Scrivania/prog_bd/client/admin.c	/^void ins_categoria(MYSQL *conn, char *s){$/;"	function	line:19	signature:(MYSQL *conn, char *s)
-ins_admin	/home/mich/Scrivania/prog_bd/client/admin.c	/^void ins_admin(MYSQL *conn){$/;"	function	line:85	signature:(MYSQL *conn)
-run_as_admin	/home/mich/Scrivania/prog_bd/client/admin.c	/^void run_as_admin(MYSQL *conn, char *s){$/;"	function	line:135	signature:(MYSQL *conn, char *s)
+visualizza_oggetti	/home/mich/Scrivania/prog_bd/client/admin.c	/^void visualizza_oggetti(MYSQL* conn){$/;"	function	line:13	signature:(MYSQL* conn)
+crea_asta	/home/mich/Scrivania/prog_bd/client/admin.c	/^void crea_asta(MYSQL *conn){$/;"	function	line:49	signature:(MYSQL *conn)
+nuova_asta	/home/mich/Scrivania/prog_bd/client/admin.c	/^void nuova_asta(MYSQL *conn){$/;"	function	line:130	signature:(MYSQL *conn)
+ins_categoria	/home/mich/Scrivania/prog_bd/client/admin.c	/^void ins_categoria(MYSQL *conn, char *s){$/;"	function	line:206	signature:(MYSQL *conn, char *s)
+ins_admin	/home/mich/Scrivania/prog_bd/client/admin.c	/^void ins_admin(MYSQL *conn){$/;"	function	line:273	signature:(MYSQL *conn)
+run_as_admin	/home/mich/Scrivania/prog_bd/client/admin.c	/^void run_as_admin(MYSQL *conn, char *s){$/;"	function	line:323	signature:(MYSQL *conn, char *s)

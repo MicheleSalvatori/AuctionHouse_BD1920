@@ -4,7 +4,19 @@
 
 #include "defines.h"
 
+MYSQL_TIME getDate(){
+	MYSQL_TIME ts;
+	char buffer[9];
+	clearScreen("Durata asta [MAX 7 MIN 1 GIORNI]");
+	printf("GIORNI: ");
+	scanf("%d",&(ts.day));
+	printf("ORE: ");
+	scanf("%d",&(ts.hour));
+	printf("MINUTI: ");
+	scanf("%d",&(ts.minute) );
 
+	return ts;
+}
 
 void clearScreen(char* s){
 	printf("\033[2J\033[H");
