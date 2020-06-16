@@ -9,7 +9,7 @@
 #define fflush(stdin) while ((getchar()) != '\n')
 #define true 1
 #define false 0
-// TODO visualizza_oggetti causa free dump dopo un po. dump_result_set con quella di luca
+
 void visualizza_oggetti(MYSQL* conn){
 	MYSQL_STMT *prepared_stmt;
 	int status;
@@ -22,14 +22,14 @@ void visualizza_oggetti(MYSQL* conn){
 		print_stmt_error(prepared_stmt, "Impossibile eseguire procedura visualizza oggetti");
 		goto err;
 	}
-	// results
+	// RESULTS
 	do{
 		if (conn->server_status & SERVER_PS_OUT_PARAMS){
 			goto next;
 		}
 
 		else{
-			dump_result_set(conn, prepared_stmt, "Oggetti");
+			dump_result_set(conn, prepared_stmt, "");
 		}
 
 		next:
@@ -38,7 +38,6 @@ void visualizza_oggetti(MYSQL* conn){
 			finish_with_stmt_error(conn, prepared_stmt, "Unexpected condition", true);
 
 	} while (status == 0);
-	mysql_stmt_close(prepared_stmt);
 
 	err:
 	mysql_stmt_close(prepared_stmt);
@@ -70,11 +69,11 @@ void crea_asta(MYSQL *conn){
 	printf("Colore: ");
 	scanf("%[^\n]", colore);
 	fflush(stdin);
-	printf("Prezzo: ");
+	printf("Prezzo di partenza: ");
 	scanf("%[^\n]", prezzo);
 	fflush(stdin);
 	clearScreen("Condizione oggetto");
-	printf("Scegli la condizione dell'oggetto:\n1) Nuovo\t2) Come nuovo\t3) Buone condizioni\n4) Usurato\t5) Non funzionanten\n-> ");
+	printf("Scegli la condizione dell'oggetto:\n1) Nuovo\t2) Come nuovo\t3) Buone condizioni\n4) Usurato\t5) Non funzionante\n-> ");
 	scanf("%d", &condizione);
 	fflush(stdin);
 
@@ -117,6 +116,7 @@ void crea_asta(MYSQL *conn){
 		goto err;
 	}else {
 		printf("Asta creata correttamente\n");
+		input_wait("");
 	}
 
 	mysql_stmt_close(prepared_stmt);
@@ -133,13 +133,14 @@ void nuova_asta(MYSQL *conn){
 	char nome[25], dimensioni[25], descrizione[255], categoria[25], risposta[5];
 
 	clearScreen("Nuova asta");
-	// visualizza_oggetti(conn);
-	printf("L'oggetto da inserire è presente in questa lista? [SI/NO] -> ");
+	visualizza_oggetti(conn);
+	printf("L'oggetto da inserire è presente in questa lista? [SI/NO/QUIT] -> ");
 	scanf("%s", risposta);
 	fflush(stdin);
 
-	// TODO if(!strcasecmp(risposta, "quit")){
-	// 	goto err;}
+	if(!strcasecmp(risposta, "quit")){
+		return;
+	}
 
 	if(!strcasecmp(risposta, "no")){
 		clearScreen("Creazione oggetto");
@@ -216,17 +217,22 @@ void ins_categoria(MYSQL *conn, char *s){
 	clearScreen(s);
 
 	visualizza_cat_3(conn);
+	printf("Inserisci quit per tornare al menu precedente..\n");;
 	printf("Categoria Livello 1: ");
 	scanf("%[^\n]", nome_cat_1);
 	fflush(stdin);
+	if (!strcasecmp(nome_cat_1, "quit")) goto err;
 
 	printf("Categoria Livello 2: ");
 	scanf("%[^\n]", nome_cat_2);
 	fflush(stdin);
+	if (!strcasecmp(nome_cat_2, "quit")) goto err;
+
 // TODO: aggiustare procedure inserisci_categoria in procedures.sql
 	printf("Categoria Livello 3: ");
 	scanf("%[^\n]", nome_cat_3);
 	fflush(stdin);
+	if (!strcasecmp(nome_cat_3, "quit")) goto err;
 
 	printf("\nRiepilogo dati: %s->%s->%s", nome_cat_1, nome_cat_2, nome_cat_3);
 	input_wait("Premi invio per confermare...");
@@ -260,10 +266,8 @@ void ins_categoria(MYSQL *conn, char *s){
 		goto err;
 	} else{
 		printf("Categoria aggiunta correttamente\n");
+		mysql_stmt_close(prepared_stmt);
 	}
-
-	mysql_stmt_close(prepared_stmt);
-	return;
 
 	err:
 	mysql_stmt_close(prepared_stmt);
@@ -335,9 +339,8 @@ void run_as_admin(MYSQL *conn, char *s){
 		clearScreen(header);
 		printf("1) Visulizza aste aperte\n");
 		printf("2) Inserisci nuova asta\n");
-		printf("3) Inserisci Oggetto\n");
-		printf("4) Crea nuova categoria\n");
-		printf("5) Nuovo amminastrore\n");
+		printf("3) Crea nuova categoria\n");
+		printf("4) Nuovo amminastrore\n");
 		printf("99) Logout\n");
 		printf("Inserisci un comando -> ");
 		scanf("%i", &cmd);
@@ -351,17 +354,16 @@ void run_as_admin(MYSQL *conn, char *s){
 
 		if (cmd == 2){
 			nuova_asta(conn);
-			input_wait("Premi un tasto per continuare...");
 			continue;
 		}
 
-		if (cmd == 4){
+		if (cmd == 3){
 			ins_categoria(conn, header);
 			input_wait("Premi un tasto per continuare...");
 			continue;
 		}
 
-		if (cmd == 5){
+		if (cmd == 4){
 			ins_admin(conn);
 			input_wait("Premi un tasto per continuare...");
 			continue;

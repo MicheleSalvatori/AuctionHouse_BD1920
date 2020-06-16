@@ -15,7 +15,7 @@ int cmd, status;
 void visualizza_cat_3(MYSQL* conn){
 	MYSQL_STMT *prepared_stmt;
 	int status;
-	
+
 	if (!setup_prepared_stmt(&prepared_stmt, "call visualizza_cat_3()", conn)){
 		finish_with_stmt_error(conn, prepared_stmt, "Impossibile visualizzare le categorie\n", false);
 	}
@@ -25,7 +25,7 @@ void visualizza_cat_3(MYSQL* conn){
 		goto out;
 	}
 
-	
+// RESULTS
 	do{
 		if (conn->server_status & SERVER_PS_OUT_PARAMS){
 			goto next;
@@ -35,12 +35,13 @@ void visualizza_cat_3(MYSQL* conn){
 			dump_result_set(conn, prepared_stmt, "Categorie");
 		}
 		// more results? -1 = no, >0 = error, 0 = yes (keep looking)
-	    next:
+	 	next:
 		status = mysql_stmt_next_result(prepared_stmt);
 		if (status > 0)
 			finish_with_stmt_error(conn, prepared_stmt, "Unexpected condition", true);
-		
+
 	} while (status == 0);
+
 
 	out:
 	mysql_stmt_close(prepared_stmt);
@@ -75,13 +76,13 @@ void visualizza_aste_aperte(MYSQL* conn, char *s){
 		status = mysql_stmt_next_result(prepared_stmt);
 		if (status > 0)
 			finish_with_stmt_error(conn, prepared_stmt, "Unexpected condition", true);
-		
+
 	} while (status == 0);
-	
+
 
 	out:
 	mysql_stmt_close(prepared_stmt);
-}	
+}
 
 
 
@@ -94,7 +95,7 @@ void run_as_user(MYSQL *conn, char *s){
 		exit(EXIT_FAILURE);
 	}
 
-	
+
 	while(true){
 		clearScreen(s);
 		printf("1) Visulizza aste aperte\n");
@@ -108,7 +109,7 @@ void run_as_user(MYSQL *conn, char *s){
 			visualizza_aste_aperte(conn, s);
 			input_wait();
 			continue;
-			
+
 		}
 		if (cmd == 99){
 			break;

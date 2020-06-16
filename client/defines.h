@@ -7,7 +7,6 @@ extern char u[255];
 extern char p[255];
 
 
-
 // UTILITY
 extern void clearScreen(char* s);
 extern void input_wait();

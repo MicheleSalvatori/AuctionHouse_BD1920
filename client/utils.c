@@ -6,7 +6,7 @@
 
 MYSQL_TIME getDate(){
 	MYSQL_TIME ts;
-	char buffer[9];
+
 	clearScreen("Durata asta [MAX 7 MIN 1 GIORNI]");
 	printf("GIORNI: ");
 	scanf("%d",&(ts.day));
@@ -25,7 +25,7 @@ void clearScreen(char* s){
 
 void input_wait(char *s){
 	char c;
-	printf("\n%s\n", s);
+	printf("%s\n", s);
 	while (c = getchar() != '\n');
 }
 
