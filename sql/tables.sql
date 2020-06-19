@@ -83,6 +83,7 @@ CREATE TABLE db_prova.oggetto(
   Categoria VARCHAR(25),
   PRIMARY KEY (id_oggetto));
 
+-- TODO cambiare soldi in float
 
 
 ALTER TABLE db_prova.offerte ADD CONSTRAINT offerte_FK_1 FOREIGN KEY (CF_Utente) REFERENCES db_prova.utenti(CF_Utente) ON DELETE CASCADE ON UPDATE CASCADE;

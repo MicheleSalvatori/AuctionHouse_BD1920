@@ -4,6 +4,38 @@
 
 #include "defines.h"
 
+void print_sql_query(MYSQL *conn, char *query){
+	printf("QUERY: %s \n",query);
+	mysql_query (conn,query);
+	int num_fields;
+	MYSQL_ROW row;
+	MYSQL_FIELD *field;
+	MYSQL_RES *result;
+
+	result = mysql_store_result(conn);
+
+	if (result == NULL){
+		finish_with_error(conn, "errore");
+	}
+	num_fields = mysql_num_fields(result);
+	printf ("\n");
+	while ((row = mysql_fetch_row(result))){
+		for(int i = 0; i < num_fields; i++) {
+			if (i == 0) {
+				while(field = mysql_fetch_field(result)){ //include il nome della colonna nella stampa
+					printf( "| %s ", field->name);
+				}
+				printf ("\n");
+			}
+			printf(" %s ", row[i] ? row[i] : "NULL");
+		}
+	}
+	printf("\n");
+	mysql_free_result(result);
+	mysql_next_result(conn);
+	input_wait();
+}
+
 MYSQL_TIME getDate(){
 	MYSQL_TIME ts;
 

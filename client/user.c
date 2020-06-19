@@ -85,6 +85,72 @@ void visualizza_aste_aperte(MYSQL* conn, char *s){
 }
 
 
+void nuova_offerta(MYSQL *conn, char *s){
+	MYSQL_STMT *prepared_stmt;
+	MYSQL_BIND param[4];
+	char id[25];
+	float valore;
+	float controfferta;
+	char *cf = "SLVMHL98T07A123X";
+
+	if (!setup_prepared_stmt(&prepared_stmt, "call inserisci_offerta(?,?,?,?)",conn)){
+		print_stmt_error(prepared_stmt, "Impossibile inizializzare la procedura per inserire una nuova offerta");
+	}
+	clearScreen(s);
+
+	printf("Inserisci ID dell'oggetto interessato: ");;
+	scanf("%[^\n]", id);
+	fflush(stdin);
+	if (!strcasecmp(id, "quit")) goto err;
+
+	printf("Inserisci valore offerta: ");
+	scanf("%f", &valore);
+	fflush(stdin);
+
+	printf("Inserisci valore per una controfferta automatica [0 = no]: ");
+	scanf("%f", &controfferta);
+	fflush(stdin);
+
+	printf("\nRiepilogo dati: %s->%f->%f", id, valore, controfferta);
+	input_wait("Premi invio per confermare...");
+
+
+	memset(param, 0, sizeof(param));
+	param[0].buffer_type = MYSQL_TYPE_VAR_STRING;
+	param[0].buffer = cf;
+	param[0].buffer_length = strlen(cf);
+
+	param[1].buffer_type = MYSQL_TYPE_FLOAT;
+	param[1].buffer = &valore;
+	param[1].buffer_length = sizeof(valore);
+
+	param[2].buffer_type = MYSQL_TYPE_VAR_STRING;
+	param[2].buffer = id;
+	param[2].buffer_length = strlen(id);
+
+	param[3].buffer_type = MYSQL_TYPE_FLOAT;
+	param[3].buffer = &controfferta;
+	param[3].buffer_length = sizeof(controfferta);
+
+	if (mysql_stmt_bind_param(prepared_stmt, param)!=0){
+		print_stmt_error(prepared_stmt, "Imposibbile inizializzare parametri per la nuova offerta");
+		goto err;
+	}
+
+	if (mysql_stmt_execute(prepared_stmt)!=0){
+		print_stmt_error(prepared_stmt, "Impossibile eseguire procedura nuova offerta");
+		goto err;
+	} else{
+		printf("Offerta aggiunta correttamente\n");
+		mysql_stmt_close(prepared_stmt);
+	}
+
+	err:
+	mysql_stmt_close(prepared_stmt);
+	return;
+
+}
+
 
 
 
@@ -99,17 +165,24 @@ void run_as_user(MYSQL *conn, char *s){
 	while(true){
 		clearScreen(s);
 		printf("1) Visulizza aste aperte\n");
+		printf("2) Nuova offerta\n");
 		printf("99) Logout\n");
 		printf("Inserisci un comando -> ");
 		scanf("%i", &cmd);
 		fflush(stdin);
 
 		if (cmd == 1){
-			clearScreen(s);
-			visualizza_aste_aperte(conn, s);
-			input_wait();
+			// clearScreen(s);
+			// visualizza_aste_aperte(conn, s);
+			print_sql_query(conn, "call visualizza_aste_aperte()");
+			input_wait("");
 			continue;
-
+		}
+		if (cmd == 2){
+			clearScreen(s);
+			nuova_offerta(conn, s);
+			input_wait("");
+			continue;
 		}
 		if (cmd == 99){
 			break;

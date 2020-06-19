@@ -264,8 +264,8 @@ int main (int argc, char *argv[]) {
 		exit(1);
 	}
 
-
-/*	while (1) {
+/*
+	while (1) {
 		clearScreen("Aste Online");
 	printf("	1) Accedi\n");
 	printf("	2) Registra Nuovo Utente\n");
@@ -330,14 +330,12 @@ int main (int argc, char *argv[]) {
 			printf("\n-- Comando non presente\n\n");
 			input_wait("Premi un tasto per continuare...");
 		}
+		}
+		*/
+		run_as_user(conn, "utenteProva");
 
 
-	}*/
-
-// chiudere conn ??
-
-	run_as_admin(conn, "michele.salvatori");
-
+// chiudere conn ?
 
 }
 
