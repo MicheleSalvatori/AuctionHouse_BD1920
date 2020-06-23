@@ -1,15 +1,18 @@
 DELIMITER $$
--- DROP Function IF EXISTS db_prova.getCFMAX;
-CREATE FUNCTION db_prova.getCFMAX (CF VARCHAR(16), id VARCHAR(25),  valore FLOAT)
-RETURNS VARCHAR(16)
+CREATE PROCEDURE db_prova.getMaxCF(CF VARCHAR(16), id VARCHAR(25),  valore FLOAT, OUT CFMAX VARCHAR(16))
 BEGIN 
-DECLARE cfAutoOfferta VARCHAR(16);
-DECLARE maxAutoOfferta FLOAT;
-	IF EXISTS (SELECT * FROM db_prova.offerte WHERE CF_Utente != CF and Oggetto = id and Max_val_controfferta > valore and Insert_time = (Select distinct MAX(Insert_time) from db_prova.max_controfferta where CF_Utente != CF)) 
-	THEN SELECT CF_Utente INTO cfAutoOfferta FROM db_prova.offerte WHERE CF_Utente != CF and Oggetto = id and Max_val_controfferta > valore and Insert_time = (Select distinct MAX(Insert_time) from db_prova.max_controfferta where CF_Utente != CF);
-    RETURN cfAutoOfferta;
-    END IF;
+	SELECT CF_Utente INTO CFMAX FROM db_prova.offerte WHERE offerte.Valore = (SELECT DISTINCT MAX(Valore) FROM db_prova.offerte WHERE CF_Utente != CF and Oggetto = id and Max_val_controfferta > valore and Max_val_controfferta is not null);
 END $$
 DELIMITER ;
 
-select db_prova.getCFMAX("SLVMHL98T07A123X", 1, 306);
+drop procedure db_prova.getMaxCF;
+call db_prova.getMaxCF("SLVMHL98T07A123M", 1, 157.5, @cf);
+SELECT @cf;
+select * from db_prova.offerte;
+
+-- SELECT MICROSECOND(SELECT Insert_time FROM db_prova.offerte WHERE Valore = 157.5)
+(SELECT DISTINCT MAX(Valore) FROM db_prova.offerte WHERE CF_Utente != "SLVMHL98T07A123M" and Oggetto = 1 and Max_val_controfferta > 157.5);
+
+
+ALTER TABLE db_prova.offerte MODIFY Insert_time DATETIME(6);
+select * from db_prova.offerte;

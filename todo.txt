@@ -41,9 +41,7 @@ regola aziendale? -> l'utente che possiede l'asta con l'offerta attualmente più
 
 
 
-
-
---> INSERISCI_OGGETTO -> cambiare decimal in VARCHAR(15);
+--> INSERISCI_OGGETTO -> cambiare decimal in FLOAT
 
 --> VISUALIZZARE LE CATEGORIE procedura, trovare modo che le stampi cosi		-> non serve lo fa visualizza_cat_3
 
@@ -67,3 +65,10 @@ regola aziendale? -> l'utente che possiede l'asta con l'offerta attualmente più
 
 LEGGERE BENE TRACCIA. DI NUOVO.
 VALUTARE USO DELLE VIEW.
+
+
+HO TOLTO L'ATTRIBUTO VALORE ATTUALE ALLA TABELLA OGGETTO RIVEDERE LA PROCEDURA INSERISCI OGGETTO
+
+HO MODIFICATO LA TABELLA OFFERTE CON DATETIME(6) E LA PROCEDURA
+ORA PER getMaxCF e le altre possiamo usare max(timestamp) perchè ci sono i millisecondi.
+Non serve quindi più NOW()+1
