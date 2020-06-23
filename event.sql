@@ -27,6 +27,7 @@ DELIMITER ;
 drop event db_prova.endOffer;
 SHOW PROCESSLIST;
 select * from provaEvento;
+call visualizza_aste_aperte();
 delete from db_prova.provaEvento Where id != "aaap";
 select * from db_prova.oggetto where oggetto.Data_termine < NOW();
 CREATE TABLE db_prova.provaEvento (id VARCHAR(15) primary key);

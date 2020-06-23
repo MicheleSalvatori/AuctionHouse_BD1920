@@ -25,9 +25,9 @@ BEGIN
 END $$
 DELIMITER ;
 
-select * from offerte;
+select * from offerte where Oggetto = 4;
 drop procedure db_prova.autoOfferta;
-call db_prova.autoOfferta("SLVMHL98T07A123X", 1, 155);
-call db_prova.nuova_offerta("SLVMHL98T07A123X", 3, 155, null, FALSE);
+call db_prova.autoOfferta("SLVMHL98T07A123M", 4, 203);
+call db_prova.nuova_offerta("SLVMHL98T07A123M", 4, 203, 211, FALSE);
 delete from db_prova.offerte where Valore >150 and CF_Utente ="SLVMHL98T07A123X";
 ALTER TABLE db_prova.offerte ADD COLUMN automatic BOOLEAN NOT NULL DEFAULT FALSE;

@@ -31,6 +31,8 @@ END $$
 
 DELIMITER ;
 drop procedure db_prova.nuova_offerta;
-call db_prova.nuova_offerta("SLVMHL98T07A123M", 1, 201, 200);
+
+call db_prova.nuova_offerta("SLVMHL98T07A123X", 5, 20, null, false);
 select * from db_prova.offerte;
 call db_prova.getLastCF(3, @cf);
+select * from oggetto where Id_oggetto = 5;
