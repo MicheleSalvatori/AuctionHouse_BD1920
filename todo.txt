@@ -12,63 +12,31 @@
 
 
 
-regola aziendale? -> l'utente che possiede l'asta con l'offerta attualmente più alta non può
-		     effettuare di nuovo un'offerta più alta sullo stesso oggetto
-
-
-
-
-
-- prezzo_attuale: trovare il modo di metterlo uguale a prezzo_base all'inserimento
-
-- Quando si aggiunge un oggetto in asta chiedere la durata dell'asta (Giorni e Ore ?) e chiamare query che la converte in datetime
-
-- quando si fa un'offerta si deve controllare che il valore della nuova offerta è maggiore del 	   valore dell'ultima offerta inserita
-
-
 - METODO DI ACCESSO -> username+password
 	AGGIUNGERE username UNIQUE
 
 
--(?) inserisci_Tipo  procedura:
-	Visualizzo le categorie -> vado in quella in cui voglio inserire un oggetto
-	-> INPUT nella query è il nome_categoria in cui mi trovo (che deve essere di livello 3)
-	-> trigger
-
-
-- procedura fill time quando si decide il termine dell'asta?
+- procedura fill time quando si decide il termine dell'asta?		Come ho fatto invece?
   Diamo opzioni 1) 1gg 2) 2gg 3) 1h 4) altro   ecc max 7gg
 
 
-
---> INSERISCI_OGGETTO -> cambiare decimal in FLOAT
-
---> VISUALIZZARE LE CATEGORIE procedura, trovare modo che le stampi cosi		-> non serve lo fa visualizza_cat_3
-
-	CAT_1 -> CAT_2 -> CAT_3;
-
---> RENDI ADMIN -> procedura che rende un utente admin (eseguibile solamente da un user già admin)
 
 --> EVENTO CHE BUTTA GLI OGGETTI MAI VENDUTI??
 	NO, perchè bisognare tenere traccia di tutti gli oggetti, rileggere consegna...
 
 
---> admin.c inserisci nuova categoria:
-	mostra già le categorie presenti e richiedere il livello e nome delle già presenti (lavoro già svolto da visualizza_cat_3)
-	effettuare vari controlli
-	poi creare categoria e collegarla con l'apposita procedura
-
-
---> SERVE PROCEDURA CHE DATO ID OGGETTO FORNISCE LA SUA STORIA???
-
 --> LE REGOLE AZIENDALI Vanno tradotte con i trgger?
 
 LEGGERE BENE TRACCIA. DI NUOVO.
-VALUTARE USO DELLE VIEW.
+
+VALUTARE USO DELLE VIEW o altro per snellire procedure per tipo "getMaxCF" ed altre
 
 
 HO TOLTO L'ATTRIBUTO VALORE ATTUALE ALLA TABELLA OGGETTO RIVEDERE LA PROCEDURA INSERISCI OGGETTO
 
 HO MODIFICATO LA TABELLA OFFERTE CON DATETIME(6) E LA PROCEDURA
-ORA PER getMaxCF e le altre possiamo usare max(timestamp) perchè ci sono i millisecondi.
-Non serve quindi più NOW()+1
+HO MODIFICATO LA TABELLA OFFERTE AGGIUNGENDO COLONNA "AUTOMATICA"
+
+--> INSERISCI_OGGETTO -> cambiare decimal in FLOAT
+
+

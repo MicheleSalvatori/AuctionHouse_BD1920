@@ -1,7 +1,7 @@
 DELIMITER $$
 CREATE PROCEDURE db_prova.getMaxCF(CF VARCHAR(16), id VARCHAR(25),  valore FLOAT, OUT CFMAX VARCHAR(16))
 BEGIN 
-	SELECT CF_Utente INTO CFMAX FROM db_prova.offerte WHERE offerte.Valore = (SELECT DISTINCT MAX(Valore) FROM db_prova.offerte WHERE CF_Utente != CF and Oggetto = id and Max_val_controfferta > valore and Max_val_controfferta is not null);
+	SELECT CF_Utente INTO CFMAX FROM db_prova.offerte WHERE Insert_time = (SELECT DISTINCT MAX(Insert_time) FROM db_prova.offerte WHERE offerte.Oggetto = id and CF_Utente != CF);
 END $$
 DELIMITER ;
 
