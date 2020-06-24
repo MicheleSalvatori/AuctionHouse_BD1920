@@ -39,4 +39,6 @@ HO MODIFICATO LA TABELLA OFFERTE AGGIUNGENDO COLONNA "AUTOMATICA"
 
 --> INSERISCI_OGGETTO -> cambiare decimal in FLOAT
 
+CAMBIARE prezzo vendita in aggiudicati in float
 
+Vedere se l'evento funziona quando si riavvia il server o bisogna setta il global event_scheduler a on ogni volta
