@@ -9,6 +9,7 @@
 #define fflush(stdin) while ((getchar()) != '\n')
 #define true 1
 #define false 0
+#define CF_SIZE 16
 int cmd, status;
 
 
@@ -87,13 +88,14 @@ void visualizza_aste_aperte(MYSQL* conn, char *s){
 
 void nuova_offerta(MYSQL *conn, char *s){
 	MYSQL_STMT *prepared_stmt;
-	MYSQL_BIND param[4];
+	MYSQL_BIND param[5];
 	char id[25];
 	float valore;
 	float controfferta;
-	char *cf = "SLVMHL98T07A123X";
+	my_bool automatic = 0;
 
-	if (!setup_prepared_stmt(&prepared_stmt, "call inserisci_offerta(?,?,?,?)",conn)){
+
+	if (!setup_prepared_stmt(&prepared_stmt, "call nuova_offerta(?,?,?,?,?)",conn)){
 		print_stmt_error(prepared_stmt, "Impossibile inizializzare la procedura per inserire una nuova offerta");
 	}
 	clearScreen(s);
@@ -111,26 +113,37 @@ void nuova_offerta(MYSQL *conn, char *s){
 	scanf("%f", &controfferta);
 	fflush(stdin);
 
-	printf("\nRiepilogo dati: %s->%f->%f", id, valore, controfferta);
+	printf("\nRiepilogo dati: %s-> %f-> %f", id, valore, controfferta);
 	input_wait("Premi invio per confermare...");
 
 
 	memset(param, 0, sizeof(param));
 	param[0].buffer_type = MYSQL_TYPE_VAR_STRING;
-	param[0].buffer = cf;
-	param[0].buffer_length = strlen(cf);
+	param[0].buffer = s;
+	param[0].buffer_length = strlen(s);
 
-	param[1].buffer_type = MYSQL_TYPE_FLOAT;
-	param[1].buffer = &valore;
-	param[1].buffer_length = sizeof(valore);
+	param[2].buffer_type = MYSQL_TYPE_FLOAT;
+	param[2].buffer = &valore;
+	param[2].buffer_length = sizeof(valore);
 
-	param[2].buffer_type = MYSQL_TYPE_VAR_STRING;
-	param[2].buffer = id;
-	param[2].buffer_length = strlen(id);
+	param[1].buffer_type = MYSQL_TYPE_VAR_STRING;
+	param[1].buffer = id;
+	param[1].buffer_length = strlen(id);
 
-	param[3].buffer_type = MYSQL_TYPE_FLOAT;
-	param[3].buffer = &controfferta;
-	param[3].buffer_length = sizeof(controfferta);
+	if ( controfferta == 0){
+		param[3].buffer_type = MYSQL_TYPE_NULL;
+		param[3].buffer = NULL;
+		param[3].buffer_length = sizeof(controfferta);
+	}else{
+		param[3].buffer_type = MYSQL_TYPE_FLOAT;
+		param[3].buffer = &controfferta;
+		param[3].buffer_length = sizeof(controfferta);
+	}
+
+	param[4].buffer_type = MYSQL_TYPE_TINY;
+	param[4].buffer = (char*)&automatic;
+	param[4].buffer_length = sizeof(automatic);
+
 
 	if (mysql_stmt_bind_param(prepared_stmt, param)!=0){
 		print_stmt_error(prepared_stmt, "Imposibbile inizializzare parametri per la nuova offerta");
@@ -145,22 +158,91 @@ void nuova_offerta(MYSQL *conn, char *s){
 		mysql_stmt_close(prepared_stmt);
 	}
 
+// controfferta automatica
+
+	if (!setup_prepared_stmt(&prepared_stmt, "call autoOfferta(?,?,?)",conn)){
+		print_stmt_error(prepared_stmt, "Impossibile inizializzare la procedura per il controllo della controfferta");
+	}
+	param[0].buffer_type = MYSQL_TYPE_VAR_STRING;
+	param[0].buffer = s;
+	param[0].buffer_length = strlen(s);
+
+	param[2].buffer_type = MYSQL_TYPE_FLOAT;
+	param[2].buffer = &valore;
+	param[2].buffer_length = sizeof(valore);
+
+	param[1].buffer_type = MYSQL_TYPE_VAR_STRING;
+	param[1].buffer = id;
+	param[1].buffer_length = strlen(id);
+
+	if (mysql_stmt_bind_param(prepared_stmt, param)!=0){
+		print_stmt_error(prepared_stmt, "Imposibbile inizializzare parametri per il controllo della controfferta");
+		goto err;
+	}
+
+	if (mysql_stmt_execute(prepared_stmt)!=0){
+		print_stmt_error(prepared_stmt, "Impossibile eseguire procedura per il controllo della controfferta");
+		goto err;
+	} else{
+		input_wait("Controllo sistema controfferta...\n");
+		mysql_stmt_close(prepared_stmt);
+	}
+
 	err:
 	mysql_stmt_close(prepared_stmt);
 	return;
-
 }
 
 
 
 
 void run_as_user(MYSQL *conn, char *s){
+MYSQL_STMT *prepared_stmt;
+MYSQL_BIND param[2];
+char cf[17];
 
 	if (mysql_change_user(conn,"user", "userPsw", "db_prova")){
 		fprintf(stderr, "mysql_change_user() failed\n");
 		exit(EXIT_FAILURE);
 	}
+	if (!setup_prepared_stmt(&prepared_stmt, "call getCF(?,?)",conn)){
+		print_stmt_error(prepared_stmt, "Impossibile inizializzare la procedura per inserire una nuova offerta");
+	}
 
+	memset(param, 0, sizeof(param));
+	param[0].buffer_type = MYSQL_TYPE_VAR_STRING;
+	param[0].buffer = s;
+	param[0].buffer_length = strlen(s);
+
+	param[1].buffer_type = MYSQL_TYPE_VAR_STRING;
+	param[1].buffer = (char*)cf;
+	param[1].buffer_length = 17;
+
+	if (mysql_stmt_bind_param(prepared_stmt, param)!=0){
+		print_stmt_error(prepared_stmt, "Imposibbile ottenere codice fiscale utente");
+		goto err;
+	}
+
+	if (mysql_stmt_execute(prepared_stmt)!=0){
+		print_stmt_error(prepared_stmt, "Impossibile eseguire procedura per ottenere codice fiscale");
+		goto err;
+	}
+
+	memset(param, 0, sizeof(param));
+	param[0].buffer_type = MYSQL_TYPE_VAR_STRING; // OUT
+	param[0].buffer = (char*)cf;
+	param[0].buffer_length = 17;
+
+	if(mysql_stmt_bind_result(prepared_stmt, param)) {
+		print_stmt_error(prepared_stmt, "Could not retrieve output parameter");
+		goto err;
+	}
+	if(mysql_stmt_fetch(prepared_stmt)) {
+		print_stmt_error(prepared_stmt, "Could not buffer results");
+		goto err;
+	}
+	mysql_stmt_close(prepared_stmt);
+	printf("CF: %s\n", cf);
 
 	while(true){
 		clearScreen(s);
@@ -174,14 +256,14 @@ void run_as_user(MYSQL *conn, char *s){
 		if (cmd == 1){
 			// clearScreen(s);
 			// visualizza_aste_aperte(conn, s);
-			print_sql_query(conn, "call visualizza_aste_aperte()");
+			// print_sql_query(conn, "call visualizza_aste_aperte()");
 			input_wait("");
 			continue;
 		}
 		if (cmd == 2){
 			clearScreen(s);
-			nuova_offerta(conn, s);
-			input_wait("");
+			nuova_offerta(conn, cf);
+			input_wait("Premi un tanto per continuare");
 			continue;
 		}
 		if (cmd == 99){
@@ -192,4 +274,7 @@ void run_as_user(MYSQL *conn, char *s){
 			input_wait();
 		}
 	}
+
+	err:
+	mysql_stmt_close(prepared_stmt);
 }

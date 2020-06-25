@@ -20,7 +20,7 @@ DECLARE lastOffer FLOAT;
         -- controllo se il valore dell'offerta è maggiore del valore attuale dell'oggetto
         IF (lastOffer >= val_offerta) THEN SIGNAL SQLSTATE '02000' SET MESSAGE_TEXT = "Devi inserire un'offerta maggiore";
 		END IF;
-        IF (autoOfferta <= val_offerta) THEN SIGNAL SQLSTATE '02000' SET MESSAGE_TEXT = "Se vuoi inserire una controfferta automatica, essa deve essere maggiore dell'offerta attuale";
+        IF (autoOfferta <= val_offerta and !automatic) THEN SIGNAL SQLSTATE '02000' SET MESSAGE_TEXT = "Se vuoi inserire una controfferta automatica, essa deve essere maggiore dell'offerta attuale";
 		END IF;
         INSERT INTO  db_prova.offerte VALUES(CF, NOW(6), val_offerta, autoOfferta, id, automatic);
     ELSE SIGNAL SQLSTATE '02000' SET MESSAGE_TEXT = "La tua offerta è già la più alta";
