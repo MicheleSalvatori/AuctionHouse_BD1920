@@ -263,76 +263,75 @@ int main (int argc, char *argv[]) {
 		mysql_close(conn);
 		exit(1);
 	}
-
-/*
-	while (1) {
-		clearScreen("Aste Online");
-	printf("	1) Accedi\n");
-	printf("	2) Registra Nuovo Utente\n");
-	printf("	99) Termina\n");
-	printf("\nInserisci comando > ");
-	scanf("%i", &cmd1);
-	fflush(stdin);
-
-	if(cmd1 == 99){
-			printf("-- Bye --\n");
-			exit(1);
-
-	}else if(cmd1 == 1){
-
-			clearScreen("LOGIN");
-
-			printf("Inserisci username: \n> ");
-			scanf("%s", u);
-			fflush(stdin);
-			printf("Inserisci password: \n> ");
-			scanf("%s", p);
-			fflush(stdin);
-			printf("\n\n");
-
-			int role = getRole(u,p);
-
-			switch(role){
-
-				case 1:
-					run_as_admin(conn, u);
-
-					if (mysql_change_user(conn,"login", "loginUser", "db_prova")){
-						fprintf(stderr, "mysql_change_user() failed\n");
-						input_wait("Premi un tasto per continuare...");
-						exit(EXIT_FAILURE);
-						}
-					break;
-
-				case 0:
-					run_as_user(conn, u);
-
-					if (mysql_change_user(conn,"login", "loginUser", "db_prova")){
-						fprintf(stderr, "mysql_change_user() failed\n");
-						input_wait("Premi un tasto per continuare...");
-						exit(EXIT_FAILURE);
-						}
-					break;
-
-				case 99:
-					printf("Invalid credentials\nFAILED LOGIN\n");
-					input_wait();
-					break;
-			}
-
-
-
-	}else if (cmd1 ==2){
-			registraUtente();
-			input_wait("Premi un tasto per continuare...");
-			break;					// meglio mettere inputWait
-	}else{
-			printf("\n-- Comando non presente\n\n");
-			input_wait("Premi un tasto per continuare...");
-		}
-		}
-		*/
-		run_as_user(conn, "utenteProva");
+	//
+	// while (1) {
+	// 	clearScreen("Aste Online");
+	// printf("	1) Accedi\n");
+	// printf("	2) Registra Nuovo Utente\n");
+	// printf("	99) Termina\n");
+	// printf("\nInserisci comando > ");
+	// scanf("%i", &cmd1);
+	// fflush(stdin);
+	//
+	// if(cmd1 == 99){
+	// 		printf("-- Bye --\n");
+	// 		exit(1);
+	//
+	// }else if(cmd1 == 1){
+	//
+	// 		clearScreen("LOGIN");
+	//
+	// 		printf("Inserisci username: \n> ");
+	// 		scanf("%s", u);
+	// 		fflush(stdin);
+	// 		printf("Inserisci password: \n> ");
+	// 		scanf("%s", p);
+	// 		fflush(stdin);
+	// 		printf("\n\n");
+	//
+	// 		int role = getRole(u,p);
+	//
+	// 		switch(role){
+	//
+	// 			case 1:
+	// 				run_as_admin(conn, u);
+	//
+	// 				if (mysql_change_user(conn,"login", "loginUser", "db_prova")){
+	// 					fprintf(stderr, "mysql_change_user() failed\n");
+	// 					input_wait("Premi un tasto per continuare...");
+	// 					exit(EXIT_FAILURE);
+	// 					}
+	// 				break;
+	//
+	// 			case 0:
+	// 				run_as_user(conn, u);
+	//
+	// 				if (mysql_change_user(conn,"login", "loginUser", "db_prova")){
+	// 					fprintf(stderr, "mysql_change_user() failed\n");
+	// 					input_wait("Premi un tasto per continuare...");
+	// 					exit(EXIT_FAILURE);
+	// 					}
+	// 				break;
+	//
+	// 			case 99:
+	// 				printf("Invalid credentials\nFAILED LOGIN\n");
+	// 				input_wait();
+	// 				break;
+	// 		}
+	//
+	//
+	//
+	// }else if (cmd1 ==2){
+	// 		registraUtente();
+	// 		input_wait("Premi un tasto per continuare...");
+	// 		break;					// meglio mettere inputWait
+	// }else{
+	// 		printf("\n-- Comando non presente\n\n");
+	// 		input_wait("Premi un tasto per continuare...");
+	// 	}
+	// 	}
+		// run_as_user(conn, "utenteProva");
+		run_as_admin(conn, "michele.salvatori");
 
 
 // chiudere conn ?

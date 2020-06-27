@@ -4,10 +4,15 @@ this_proc:BEGIN
 DECLARE cfMax VARCHAR(16);
 DECLARE lastOffer FLOAT;
 
--- contrallo se l'id esiste
+-- Controllo se l'id esiste
 	IF NOT EXISTS (SELECT * from db_prova.oggetto WHERE oggetto.Id_oggetto = id and oggetto.Data_termine > NOW())
 		THEN SIGNAL SQLSTATE '02000' SET MESSAGE_TEXT = "Oggetto non in asta";
 	END IF;
+-- Controllo granularità offerte
+	IF ( (MOD(val_offerta, 0.50))>0)
+    THEN SIGNAL SQLSTATE '02000' SET MESSAGE_TEXT = "La granularita\' di incremento delle offerte e\' di multipli di 50 centesimi di euro";
+    END IF;
+-- Controllo se non ci sono ancora offerte sull'oggetto
 	IF NOT EXISTS (SELECT * FROM db_prova.offerte WHERE offerte.Oggetto = id) THEN
     INSERT INTO  db_prova.offerte VALUES(CF, NOW(6), val_offerta, autoOfferta, id, automatic);
     LEAVE this_proc;
@@ -20,10 +25,10 @@ DECLARE lastOffer FLOAT;
         -- controllo se il valore dell'offerta è maggiore del valore attuale dell'oggetto
         IF (lastOffer >= val_offerta) THEN SIGNAL SQLSTATE '02000' SET MESSAGE_TEXT = "Devi inserire un'offerta maggiore";
 		END IF;
-        IF (autoOfferta <= val_offerta and !automatic) THEN SIGNAL SQLSTATE '02000' SET MESSAGE_TEXT = "Se vuoi inserire una controfferta automatica, essa deve essere maggiore dell'offerta attuale";
+        IF (autoOfferta <= val_offerta and !automatic) THEN SIGNAL SQLSTATE '02000' SET MESSAGE_TEXT = "Se vuoi inserire una controfferta automatica, essa deve essere maggiore dell\'offerta attuale";
 		END IF;
         INSERT INTO  db_prova.offerte VALUES(CF, NOW(6), val_offerta, autoOfferta, id, automatic);
-    ELSE SIGNAL SQLSTATE '02000' SET MESSAGE_TEXT = "La tua offerta è già la più alta";
+    ELSE SIGNAL SQLSTATE '02000' SET MESSAGE_TEXT = "La tua offerta e\' gia\' la piu\' alta";
 	END IF;
 
 END $$

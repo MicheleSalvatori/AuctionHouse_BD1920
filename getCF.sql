@@ -5,4 +5,7 @@ call db_prova.getCF("michele.salvatori", @cf);
 select @cf;
 select * from offerte where Oggetto = 5 ORDER BY Insert_time DESC;
 
-delete from db_prova.offerte WHere Oggetto = 5 and Valore > 28;
+delete from db_prova.offerte WHere Oggetto = 5 and Valore > 28 and CF_Utente != "ss";
+
+
+SELECT CAST(150.50 AS DECIMAL(20,2));

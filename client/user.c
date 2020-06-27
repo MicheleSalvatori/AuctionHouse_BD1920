@@ -54,9 +54,7 @@ void visualizza_aste_aperte(MYSQL* conn, char *s){
 
 	clearScreen(s);
 	if (!setup_prepared_stmt(&prepared_stmt, "call visualizza_aste_aperte", conn)){
-		printf("ERRORE\n");
 		finish_with_stmt_error(conn, prepared_stmt, "Impossibile visualizzare aste aperte\n", false);
-
 	}
 
 	if (mysql_stmt_execute(prepared_stmt)!=0){
@@ -85,7 +83,6 @@ void visualizza_aste_aperte(MYSQL* conn, char *s){
 	mysql_stmt_close(prepared_stmt);
 }
 
-
 void nuova_offerta(MYSQL *conn, char *s){
 	MYSQL_STMT *prepared_stmt;
 	MYSQL_BIND param[5];
@@ -98,7 +95,7 @@ void nuova_offerta(MYSQL *conn, char *s){
 	if (!setup_prepared_stmt(&prepared_stmt, "call nuova_offerta(?,?,?,?,?)",conn)){
 		print_stmt_error(prepared_stmt, "Impossibile inizializzare la procedura per inserire una nuova offerta");
 	}
-	clearScreen(s);
+	visualizza_aste_aperte(conn,s);
 
 	printf("Inserisci ID dell'oggetto interessato: ");;
 	scanf("%[^\n]", id);
@@ -109,11 +106,11 @@ void nuova_offerta(MYSQL *conn, char *s){
 	scanf("%f", &valore);
 	fflush(stdin);
 
-	printf("Inserisci valore per una controfferta automatica [0 = no]: ");
+	printf("Se desideri impostare una controfferta automatica, inserisci il valore massimo desiderato. Altrimenti inserisci 0: ");
 	scanf("%f", &controfferta);
 	fflush(stdin);
 
-	printf("\nRiepilogo dati: %s-> %f-> %f", id, valore, controfferta);
+	printf("\nRiepilogo dati:\n\tID: %s\n\tOfferta: %0.2f\n\tControfferta Automatica: %0.2f\n", id, valore, controfferta);
 	input_wait("Premi invio per confermare...");
 
 
@@ -158,6 +155,8 @@ void nuova_offerta(MYSQL *conn, char *s){
 		mysql_stmt_close(prepared_stmt);
 	}
 
+	visualizza_aste_aperte(conn, s);
+	input_wait("Controllo sistema di controfferta automatica, premere invio...");
 // controfferta automatica
 
 	if (!setup_prepared_stmt(&prepared_stmt, "call autoOfferta(?,?,?)",conn)){
@@ -184,8 +183,8 @@ void nuova_offerta(MYSQL *conn, char *s){
 		print_stmt_error(prepared_stmt, "Impossibile eseguire procedura per il controllo della controfferta");
 		goto err;
 	} else{
-		input_wait("Controllo sistema controfferta...\n");
-		mysql_stmt_close(prepared_stmt);
+		input_wait("\n\t\tOfferte aggiornate, premi invio..\n");
+		visualizza_aste_aperte(conn, s);
 	}
 
 	err:
@@ -193,6 +192,96 @@ void nuova_offerta(MYSQL *conn, char *s){
 	return;
 }
 
+void aste_interessate(MYSQL *conn, char *s){
+	MYSQL_STMT *prepared_stmt;
+	MYSQL_BIND param[1];
+	int status;
+
+	clearScreen(s);
+	if (!setup_prepared_stmt(&prepared_stmt, "call listInteressati(?)", conn)){
+		print_stmt_error(prepared_stmt, "Impossibile inizializzare la procedura per visualizzare le aste interessate");
+		goto err;
+	}
+
+	memset(param, 0, sizeof(param));
+	param[0].buffer_type = MYSQL_TYPE_VAR_STRING;
+	param[0].buffer = s;
+	param[0].buffer_length = strlen(s);
+
+	if (mysql_stmt_bind_param(prepared_stmt, param)!=0){
+		print_stmt_error(prepared_stmt, "Imposibbile preparere i parametri per visualizzare le aste interessate");
+		goto err;
+	}
+
+	if (mysql_stmt_execute(prepared_stmt)!=0){
+		print_stmt_error(prepared_stmt, "Impossibile eseguire procedura per visualizzare le aste interessate");
+		goto err;
+	}
+
+	do{
+		if (conn->server_status & SERVER_PS_OUT_PARAMS){
+			goto next;
+		}
+
+		else{
+			dump_result_set(conn, prepared_stmt, "Aste:");
+		}
+		// more results? -1 = no, >0 = error, 0 = yes (keep looking)
+			next:
+		status = mysql_stmt_next_result(prepared_stmt);
+		if (status > 0)
+			finish_with_stmt_error(conn, prepared_stmt, "Unexpected condition", true);
+
+	} while (status == 0);
+
+	err:
+	mysql_stmt_close(prepared_stmt);
+}
+void oggetti_aggiudicati(MYSQL *conn, char *s){
+	MYSQL_STMT *prepared_stmt;
+	MYSQL_BIND param[1];
+	int status;
+
+	clearScreen(s);
+	if (!setup_prepared_stmt(&prepared_stmt, "call listAggiudicati(?)", conn)){
+		print_stmt_error(prepared_stmt, "Impossibile inizializzare la procedura per visualizzare gli oggetti listAggiudicati");
+		goto err;
+	}
+
+	memset(param, 0, sizeof(param));
+	param[0].buffer_type = MYSQL_TYPE_VAR_STRING;
+	param[0].buffer = s;
+	param[0].buffer_length = strlen(s);
+
+	if (mysql_stmt_bind_param(prepared_stmt, param)!=0){
+		print_stmt_error(prepared_stmt, "Imposibbile preparere i parametri per visualizzare gli oggetti aggiudicati");
+		goto err;
+	}
+
+	if (mysql_stmt_execute(prepared_stmt)!=0){
+		print_stmt_error(prepared_stmt, "Impossibile eseguire procedura per visualizzare gli oggetti aggiudicati");
+		goto err;
+	}
+
+	do{
+		if (conn->server_status & SERVER_PS_OUT_PARAMS){
+			goto next;
+		}
+
+		else{
+			dump_result_set(conn, prepared_stmt, "Aste:");
+		}
+		// more results? -1 = no, >0 = error, 0 = yes (keep looking)
+			next:
+		status = mysql_stmt_next_result(prepared_stmt);
+		if (status > 0)
+			finish_with_stmt_error(conn, prepared_stmt, "Unexpected condition", true);
+
+	} while (status == 0);
+
+	err:
+	mysql_stmt_close(prepared_stmt);
+}
 
 
 
@@ -248,30 +337,39 @@ char cf[17];
 		clearScreen(s);
 		printf("1) Visulizza aste aperte\n");
 		printf("2) Nuova offerta\n");
+		printf("3) Aste attive interessate\n");
+		printf("4) Oggetti aggiudicati\n");
 		printf("99) Logout\n");
 		printf("Inserisci un comando -> ");
 		scanf("%i", &cmd);
 		fflush(stdin);
 
 		if (cmd == 1){
-			// clearScreen(s);
-			// visualizza_aste_aperte(conn, s);
-			// print_sql_query(conn, "call visualizza_aste_aperte()");
-			input_wait("");
+			visualizza_aste_aperte(conn, s);
+			input_wait("Premi invio per tornare indietro...");
 			continue;
 		}
 		if (cmd == 2){
-			clearScreen(s);
 			nuova_offerta(conn, cf);
-			input_wait("Premi un tanto per continuare");
+			input_wait("Premi invio per tornare indietro...");
+			continue;
+		}
+		if (cmd == 3){
+			aste_interessate(conn, cf);
+			input_wait("Premi invio per tornare indietro...");
+			continue;
+		}
+		if (cmd == 4){
+			oggetti_aggiudicati(conn, cf);
+			input_wait("Premi invio per tornare indietro...");
 			continue;
 		}
 		if (cmd == 99){
 			break;
 		}
 		else {
-			printf("\n-- Comando non presente --\n");
-			input_wait();
+			input_wait("Comando non presente...");
+			continue;
 		}
 	}
 

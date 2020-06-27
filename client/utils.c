@@ -306,7 +306,7 @@ void dump_result_set(MYSQL *conn, MYSQL_STMT *stmt, char *title)
 
 					case MYSQL_TYPE_FLOAT:
 					case MYSQL_TYPE_DOUBLE:
-						printf(" %.02f |", *(float *)rs_bind[i].buffer);
+						printf(" %0.2f |", *(float *)rs_bind[i].buffer);
 						break;
 
 					case MYSQL_TYPE_LONG:

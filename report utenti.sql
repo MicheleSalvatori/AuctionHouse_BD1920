@@ -1,5 +1,5 @@
 CREATE PROCEDURE db_prova.listAggiudicati (IN cfUtente VARCHAR(16))
-SELECT Oggetto AS "ID", Prezzo_vendita AS "Saldo" FROM db_prova.aggiudicati WHERE Utente = cfUtente;
+SELECT Oggetto AS "ID", CAST(Prezzo_vendita AS CHAR) AS "Saldo" FROM db_prova.aggiudicati WHERE Utente = cfUtente;
 
 CREATE PROCEDURE db_prova.listInteressati (IN cfUtente VARCHAR(16))
 SELECT Oggetto AS "ID", Tipo AS "Oggetto" from db_prova.offerte JOIN db_prova.oggetto WHERE offerte.Oggetto = oggetto.Id_oggetto

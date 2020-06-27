@@ -321,6 +321,60 @@ void ins_admin(MYSQL *conn){
 	return;
 }
 
+void report(MYSQL *conn, char* s){
+	MYSQL_STMT *prepared_stmt;
+	MYSQL_BIND param[1];
+	int status;
+	char id[25];
+	char *header;
+	clearScreen(s);
+
+	if (!setup_prepared_stmt(&prepared_stmt, "call reportID(?)", conn)){
+		print_stmt_error(prepared_stmt, "Impossibile inizializzare la procedura per visualizzare il report");
+		goto err;
+	}
+	printf("Inserisci ID oggetto: ");
+	scanf("%[^\n]", id);
+	fflush(stdin);
+	header = malloc(strlen(id)+1);
+	sprintf(header, "REPORT: %s", id);
+
+	memset(param, 0, sizeof(param));
+	param[0].buffer_type = MYSQL_TYPE_VAR_STRING;
+	param[0].buffer = id;
+	param[0].buffer_length = strlen(id);
+
+	if (mysql_stmt_bind_param(prepared_stmt, param)!=0){
+		print_stmt_error(prepared_stmt, "Imposibbile preparere i parametri per visualizzare il rerport");
+		goto err;
+	}
+
+	if (mysql_stmt_execute(prepared_stmt)!=0){
+		print_stmt_error(prepared_stmt, "Impossibile eseguire procedura per visualizzare il rerport");
+		goto err;
+	}
+
+	do{
+		if (conn->server_status & SERVER_PS_OUT_PARAMS){
+			goto next;
+		}
+
+		else{
+			dump_result_set(conn, prepared_stmt, header);
+		}
+		// more results? -1 = no, >0 = error, 0 = yes (keep looking)
+			next:
+		status = mysql_stmt_next_result(prepared_stmt);
+		if (status > 0)
+			finish_with_stmt_error(conn, prepared_stmt, "Unexpected condition", true);
+
+	} while (status == 0);
+
+	err:
+	mysql_stmt_close(prepared_stmt);
+}
+
+
 
 
 
@@ -341,6 +395,7 @@ void run_as_admin(MYSQL *conn, char *s){
 		printf("2) Inserisci nuova asta\n");
 		printf("3) Crea nuova categoria\n");
 		printf("4) Nuovo amminastrore\n");
+		printf("5) ReportID\n");
 		printf("99) Logout\n");
 		printf("Inserisci un comando -> ");
 		scanf("%i", &cmd);
@@ -365,6 +420,12 @@ void run_as_admin(MYSQL *conn, char *s){
 
 		if (cmd == 4){
 			ins_admin(conn);
+			input_wait("Premi un tasto per continuare...");
+			continue;
+		}
+
+		if (cmd == 5){
+			report(conn, header);
 			input_wait("Premi un tasto per continuare...");
 			continue;
 		}
