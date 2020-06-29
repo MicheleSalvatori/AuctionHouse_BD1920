@@ -4,36 +4,18 @@
 
 #include "defines.h"
 
-void print_sql_query(MYSQL *conn, char *query){
-	printf("QUERY: %s \n",query);
-	mysql_query (conn,query);
-	int num_fields;
-	MYSQL_ROW row;
-	MYSQL_FIELD *field;
-	MYSQL_RES *result;
-
-	result = mysql_store_result(conn);
-
-	if (result == NULL){
-		finish_with_error(conn, "errore");
+void startEvent(MYSQL* conn){
+	MYSQL_STMT *prepared_stmt;
+	
+	if (!setup_prepared_stmt(&prepared_stmt, "call startEvent()",conn)){
+		print_stmt_error(prepared_stmt, "Impossibile cambiare la variabile globale event_scheduler");
 	}
-	num_fields = mysql_num_fields(result);
-	printf ("\n");
-	while ((row = mysql_fetch_row(result))){
-		for(int i = 0; i < num_fields; i++) {
-			if (i == 0) {
-				while(field = mysql_fetch_field(result)){ //include il nome della colonna nella stampa
-					printf( "| %s ", field->name);
-				}
-				printf ("\n");
-			}
-			printf(" %s ", row[i] ? row[i] : "NULL");
-		}
+
+	if (mysql_stmt_execute(prepared_stmt)!=0){
+		print_stmt_error(prepared_stmt, "Impossibile cambiare la variabile globale event_scheduler");
 	}
-	printf("\n");
-	mysql_free_result(result);
-	mysql_next_result(conn);
-	input_wait();
+
+	mysql_stmt_close(prepared_stmt);
 }
 
 MYSQL_TIME getDate(){

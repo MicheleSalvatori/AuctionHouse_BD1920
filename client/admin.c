@@ -380,7 +380,7 @@ void report(MYSQL *conn, char* s){
 
 void run_as_admin(MYSQL *conn, char *s){
 	int cmd;
-	if (mysql_change_user(conn,"admin", "admin", "db_prova")){
+	if (mysql_change_user(conn,"admin", "admin", "aste")){
 		fprintf(stderr, "mysql_change_user() failed\n");
 		exit(EXIT_FAILURE);
 	}

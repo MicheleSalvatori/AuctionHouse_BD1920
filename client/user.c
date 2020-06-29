@@ -284,13 +284,14 @@ void oggetti_aggiudicati(MYSQL *conn, char *s){
 }
 
 
-
 void run_as_user(MYSQL *conn, char *s){
 MYSQL_STMT *prepared_stmt;
 MYSQL_BIND param[2];
 char cf[17];
 
-	if (mysql_change_user(conn,"user", "userPsw", "db_prova")){
+	startEvent(conn);
+
+	if (mysql_change_user(conn,"user", "userPsw", "aste")){
 		fprintf(stderr, "mysql_change_user() failed\n");
 		exit(EXIT_FAILURE);
 	}

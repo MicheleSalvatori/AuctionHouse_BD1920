@@ -17,14 +17,12 @@ ON COMPLETION PRESERVE
 					fetch cur into id;
                     IF EXISTS (SELECT * from db_prova.offerte where Oggetto = id) THEN 
                     CALL db_prova.getWinner(id, winnerCF, winnerValue);
-                    INSERT INTO db_prova.provaEvento VALUES (id);
                     INSERT INTO db_prova.aggiudicati VALUES (id, winnerCF, winnerValue);
                     END IF;
 				end loop;
 			close cur;
 		
         END$$
-        
         
 DELIMITER ;
 
