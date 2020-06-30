@@ -80,9 +80,9 @@ void registraUtente(){
 	char nome[16];
 	char cognome[16];
 	char dNascita[11];
-	char cNascita[16];
+	char cNascita[51];
 	char indirizzo[46];
-	char citta[16];
+	char citta[51];
 	char cardNumber[25];
 	char nomeIntestatario[255];
 	char cognomeIntestatario[255];
@@ -118,7 +118,7 @@ void registraUtente(){
 	fflush(stdin);
 
 	printf("Città di nascita: ");
-	scanf("%s", cNascita);
+	scanf("%[^\n]", cNascita);
 	fflush(stdin);
 
 	printf("Indirizzo di consegna: ");
@@ -126,7 +126,7 @@ void registraUtente(){
 	fflush(stdin);
 
 	printf("Città: ");
-	scanf("%s", citta);
+	scanf("%[^\n]", citta);
 	fflush(stdin);
 
 	printf("Numero carta: ");
@@ -250,7 +250,6 @@ void registraUtente(){
 
 
 int main (int argc, char *argv[]) {
-	// clearScreen("Aste Online");
 	conn = mysql_init(NULL);
 	if (conn == NULL){
 		fprintf(stderr, "Errore conn\n");
@@ -263,6 +262,8 @@ int main (int argc, char *argv[]) {
 		mysql_close(conn);
 		exit(1);
 	}
+
+	startEvent(conn);
 
 	while (1) {
 		clearScreen("Aste Online");

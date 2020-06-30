@@ -49,3 +49,7 @@ Controllare dopo input_wait nuova offerta, aggiustarla
 ho cambiato adminPsw
 
 La procedura visualizza_cat_1 e visualizza_cat_2 servono?
+
+SISTEMARE LOGOUT -> double free
+
+UTENTI POSSONO VISUALIZZARE CATEGORIE -> Da aggiungere
