@@ -318,7 +318,7 @@ DELIMITER $$
 CREATE PROCEDURE aste.visualizza_aste_aperte()
 BEGIN
 SELECT Id_oggetto as ID, Tipo as Nome, Colore, Dimensioni, Condizione, CAST(Prezzo_base AS CHAR)as "Prezzo Iniziale",
-CAST((SELECT Valore from aste.offerte Where Oggetto = Id_oggetto and Valore = (SELECT DISTINCT MAX(Valore) FROM aste.offerte WHERE Oggetto = Id_oggetto)) AS CHAR) as "Prezzo Attuale",
+IFNULL(CAST((SELECT Valore from aste.offerte Where Oggetto = Id_oggetto and Valore = (SELECT DISTINCT MAX(Valore) FROM aste.offerte WHERE Oggetto = Id_oggetto)) AS CHAR), "Null") as "Prezzo Attuale",
 TIME_FORMAT(SEC_TO_TIME(TIMESTAMPDIFF(SECOND,NOW(), Data_termine)), "%T") as "Tempo rimanente",
 CAST((SELECT COUNT(*) FROM aste.offerte WHERE offerte.Oggetto = ID) AS CHAR) AS "N.Offerte"
 

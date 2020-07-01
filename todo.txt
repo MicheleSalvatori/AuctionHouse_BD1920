@@ -43,3 +43,5 @@ HO MODIFICATO L'ATTRIBUTO Prezzo_vendita in AGGIUDICATI in FLOAT;
 La procedura visualizza_cat_1 e visualizza_cat_2 servono?
 
 UTENTI POSSONO VISUALIZZARE CATEGORIE -> Da aggiungere
+
+provare cosa cambia con sql signal state 45000
