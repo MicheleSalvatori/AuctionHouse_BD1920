@@ -38,18 +38,8 @@ HO MODIFICATO LA TABELLA OFFERTE CON DATETIME(6) E LA PROCEDURA
 HO MODIFICATO LA TABELLA OFFERTE AGGIUNGENDO COLONNA "AUTOMATICA"
 HO MODIFICATO L'ATTRIBUTO Prezzo_vendita in AGGIUDICATI in FLOAT;
 
---> INSERISCI_OGGETTO -> cambiare decimal in FLOAT
 
-CAMBIARE prezzo vendita in aggiudicati in float
-
-Vedere se l'evento funziona quando si riavvia il server o bisogna setta il global event_scheduler a on ogni volta
-
-Controllare dopo input_wait nuova offerta, aggiustarla
-
-ho cambiato adminPsw
 
 La procedura visualizza_cat_1 e visualizza_cat_2 servono?
-
-SISTEMARE LOGOUT -> double free
 
 UTENTI POSSONO VISUALIZZARE CATEGORIE -> Da aggiungere

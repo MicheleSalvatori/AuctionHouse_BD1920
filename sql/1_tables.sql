@@ -67,7 +67,6 @@ CREATE TABLE aste.catIndex(
 CREATE TABLE aste.tipo_oggetto(
   Nome_Categoria VARCHAR(25),
   Nome_Oggetto VARCHAR(25),
-  Dimensioni VARCHAR(25) NOT NULL,
   Descrizione_oggetto VARCHAR(255) NOT NULL,
   PRIMARY KEY (Nome_Categoria, Nome_Oggetto)
 );
@@ -76,6 +75,7 @@ CREATE TABLE aste.tipo_oggetto(
 CREATE TABLE aste.oggetto(
   Id_oggetto VARCHAR(25),
   Colore VARCHAR(15),
+  Dimensioni VARCHAR(50) NOT NULL,
   Prezzo_base FLOAT NOT NULL,
   Condizione ENUM("Nuovo", "Come nuovo", "Buone condizioni", "Usurato", "Non funzionante") NOT NULL,
   Data_termine DATETIME NOT NULL,

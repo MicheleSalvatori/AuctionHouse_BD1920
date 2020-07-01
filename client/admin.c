@@ -47,40 +47,40 @@ void visualizza_oggetti(MYSQL* conn){
 
 void crea_asta(MYSQL *conn){
 	MYSQL_STMT *prepared_stmt;
-	MYSQL_BIND param[6];
+	MYSQL_BIND param[7];
 	MYSQL_TIME time_st;
-	char id[25], colore[25], prezzo[15], tipo[25], data[9];
+	char id[25], colore[25], tipo[25], data[9], dimensioni[50];
+	float prezzo;
 	int condizione;
 
-	if (!setup_prepared_stmt(&prepared_stmt, "call inserisci_oggetto(?,?,?,?,?,?)", conn)){
+	if (!setup_prepared_stmt(&prepared_stmt, "call inserisci_oggetto(?,?,?,?,?,?,?)", conn)){
 	print_stmt_error(prepared_stmt, "Impossibile inizializzare procedura per inserire una nuova asta");
 	goto err;
 	}
-
 	printf("Seleziona oggetto da inserire tra quelli elencati [nome]: ");
 	scanf("%[^\n]", tipo);
 	fflush(stdin);
 
 	clearScreen("Nuova asta");
-	memset(param, 0, sizeof(param));
 	printf("ID [alfanumerico]: ");
 	scanf("%[^\n]", id );
 	fflush(stdin);
 	printf("Colore: ");
 	scanf("%[^\n]", colore);
 	fflush(stdin);
+	printf("Dimensioni: ");
+	scanf("%[^\n]", dimensioni);
+	fflush(stdin);
 	printf("Prezzo di partenza: ");
-	scanf("%[^\n]", prezzo);
+	scanf("%f", &prezzo);
 	fflush(stdin);
 	clearScreen("Condizione oggetto");
 	printf("Scegli la condizione dell'oggetto:\n1) Nuovo\t2) Come nuovo\t3) Buone condizioni\n4) Usurato\t5) Non funzionante\n-> ");
 	scanf("%d", &condizione);
 	fflush(stdin);
 
-	time_st = getDate();
-
-	sprintf(data, "%d:%02d",time_st.day * 24 + time_st.hour, time_st.minute);
-	fflush(stdin);
+	getDate(data);
+	memset(param, 0, sizeof(param));
 
 	param[0].buffer_type = MYSQL_TYPE_VAR_STRING;
 	param[0].buffer = id;
@@ -91,20 +91,24 @@ void crea_asta(MYSQL *conn){
 	param[1].buffer_length = strlen(colore);
 
 	param[2].buffer_type = MYSQL_TYPE_VAR_STRING;
-	param[2].buffer = prezzo;
-	param[2].buffer_length = strlen(prezzo);
+	param[2].buffer = dimensioni;
+	param[2].buffer_length = strlen(dimensioni);
 
-	param[3].buffer_type = MYSQL_TYPE_LONG;
-	param[3].buffer = &condizione;
-	param[3].buffer_length = sizeof(condizione);
+	param[3].buffer_type = MYSQL_TYPE_FLOAT;
+	param[3].buffer = &prezzo;
+	param[3].buffer_length = sizeof(prezzo);
 
-	param[4].buffer_type = MYSQL_TYPE_VAR_STRING;
-	param[4].buffer = tipo;
-	param[4].buffer_length = strlen(tipo);
+	param[4].buffer_type = MYSQL_TYPE_LONG;
+	param[4].buffer = &condizione;
+	param[4].buffer_length = sizeof(condizione);
 
 	param[5].buffer_type = MYSQL_TYPE_VAR_STRING;
-	param[5].buffer = data;
-	param[5].buffer_length = strlen(data);
+	param[5].buffer = tipo;
+	param[5].buffer_length = strlen(tipo);
+
+	param[6].buffer_type = MYSQL_TYPE_VAR_STRING;
+	param[6].buffer = data;
+	param[6].buffer_length = strlen(data);
 
 	if (mysql_stmt_bind_param(prepared_stmt, param)!=0){
 		print_stmt_error(prepared_stmt, "Imposibbile inizializzare parametri per la nuova asta");
@@ -129,8 +133,8 @@ return;
 
 void nuova_asta(MYSQL *conn){
 	MYSQL_STMT *prepared_stmt;
-	MYSQL_BIND param[4];
-	char nome[25], dimensioni[25], descrizione[255], categoria[25], risposta[5];
+	MYSQL_BIND param[3];
+	char nome[26], descrizione[255], categoria[25], risposta[5];
 
 	clearScreen("Nuova asta");
 	visualizza_oggetti(conn);
@@ -147,16 +151,13 @@ void nuova_asta(MYSQL *conn){
 
 		visualizza_cat_3(conn);
 
-		if (!setup_prepared_stmt(&prepared_stmt, "call inserisci_Tipo(?,?,?,?)", conn)){
+		if (!setup_prepared_stmt(&prepared_stmt, "call inserisci_Tipo(?,?,?)", conn)){
 		print_stmt_error(prepared_stmt, "Impossibile inizializzare procedura inserimento tipo oggetto");
 		goto err;
 		}
 
 		printf("Nome oggetto: ");
 		scanf("%[^\n]", nome);
-		fflush(stdin);
-		printf("Dimensioni: ");
-		scanf("%[^\n]", dimensioni);
 		fflush(stdin);
 		printf("Descrizione: ");
 		scanf("%[^\n]", descrizione);
@@ -174,11 +175,9 @@ void nuova_asta(MYSQL *conn){
 		param[1].buffer = nome;
 		param[1].buffer_length = strlen(nome);
 		param[2].buffer_type = MYSQL_TYPE_VAR_STRING;
-		param[2].buffer = dimensioni;
-		param[2].buffer_length = strlen(dimensioni);
-		param[3].buffer_type = MYSQL_TYPE_VAR_STRING;
-		param[3].buffer = descrizione;
-		param[3].buffer_length = strlen(descrizione);
+		param[2].buffer = descrizione;
+		param[2].buffer_length = strlen(descrizione);
+
 
 		if (mysql_stmt_bind_param(prepared_stmt, param)!=0){
 			print_stmt_error(prepared_stmt, "Imposibbile inizializzare parametri per inseriemento nuovo oggetto");
@@ -190,7 +189,8 @@ void nuova_asta(MYSQL *conn){
 			goto err;
 		} else{
 			printf("Oggetto aggiunto correttamente\n");
-			mysql_stmt_close(prepared_stmt);
+			visualizza_oggetti(conn);
+			crea_asta(conn);
 		}
 	}
 	if (!strcasecmp(risposta, "si")){
@@ -234,14 +234,8 @@ void ins_categoria(MYSQL *conn, char *s){
 	fflush(stdin);
 	if (!strcasecmp(nome_cat_3, "quit")) goto err;
 
-	printf("\nRiepilogo dati: %s->%s->%s", nome_cat_1, nome_cat_2, nome_cat_3);
-	input_wait("Premi invio per confermare...");
-
-	// controlli su input //TODO non funzionano tanto -> Valutare uso funzione getInput di Pellegrini
-	if (nome_cat_1 == " " || nome_cat_2 == " " || nome_cat_3 == " "){
-		printf("Devi inserire valori validi\n");
-		goto err;
-	}
+	printf("\nRiepilogo dati: %s -> %s -> %s", nome_cat_1, nome_cat_2, nome_cat_3);
+	input_wait("\nPremi invio per confermare...");
 
 	memset(param, 0, sizeof(param));
 	param[0].buffer_type = MYSQL_TYPE_VAR_STRING;
@@ -266,7 +260,6 @@ void ins_categoria(MYSQL *conn, char *s){
 		goto err;
 	} else{
 		printf("Categoria aggiunta correttamente\n");
-		mysql_stmt_close(prepared_stmt);
 	}
 
 	err:
@@ -380,7 +373,7 @@ void report(MYSQL *conn, char* s){
 
 void run_as_admin(MYSQL *conn, char *s){
 	int cmd;
-	if (mysql_change_user(conn,"admin", "admin", "aste")){
+	if (mysql_change_user(conn,"admin", "adminPsw", "aste")){
 		fprintf(stderr, "mysql_change_user() failed\n");
 		exit(EXIT_FAILURE);
 	}
@@ -396,6 +389,7 @@ void run_as_admin(MYSQL *conn, char *s){
 		printf("3) Crea nuova categoria\n");
 		printf("4) Nuovo amminastrore\n");
 		printf("5) ReportID\n");
+		printf("6) Visualizza Categorie\n");
 		printf("99) Logout\n");
 		printf("Inserisci un comando -> ");
 		scanf("%i", &cmd);
@@ -403,30 +397,37 @@ void run_as_admin(MYSQL *conn, char *s){
 
 		if (cmd == 1){
 			visualizza_aste_aperte(conn, header);
-			input_wait("Premi un tasto per continuare...");
+			input_wait("Premi invio per tornare indietro...");
 			continue;
 		}
 
 		if (cmd == 2){
 			nuova_asta(conn);
+			input_wait("Premi invio per tornare indietro...");
 			continue;
 		}
 
 		if (cmd == 3){
 			ins_categoria(conn, header);
-			input_wait("Premi un tasto per continuare...");
+			input_wait("Premi invio per tornare indietro...");
 			continue;
 		}
 
 		if (cmd == 4){
 			ins_admin(conn);
-			input_wait("Premi un tasto per continuare...");
+			input_wait("Premi invio per tornare indietro...");
 			continue;
 		}
 
 		if (cmd == 5){
 			report(conn, header);
-			input_wait("Premi un tasto per continuare...");
+			input_wait("Premi invio per tornare indietro...");
+			continue;
+		}
+		if (cmd == 6){
+			clearScreen(header);
+			visualizza_cat_3(conn);
+			input_wait("Premi invio per tornare indietro...");
 			continue;
 		}
 

@@ -111,14 +111,14 @@ DELIMITER ;
 -- -----------------------------------------------------
 
 DELIMITER $$
-CREATE PROCEDURE aste.inserisci_Tipo (IN Nome_categoria VARCHAR(25), IN Nome_Oggetto VARCHAR(25), IN Dimensioni VARCHAR(25), IN Descrizione VARCHAR(255))
+CREATE PROCEDURE aste.inserisci_Tipo (IN Nome_categoria VARCHAR(25), IN Nome_Oggetto VARCHAR(25), IN Descrizione VARCHAR(255))
 BEGIN
 		IF (SELECT NOT EXISTS (SELECT *
 			   FROM aste.categoria
 			   WHERE Livello = "3" and categoria.Nome_Categoria = Nome_Categoria))
 		THEN
         SIGNAL SQLSTATE '02000' SET MESSAGE_TEXT = 'Attenzione categoria non di livello 3 non esistente';
-		ELSE INSERT INTO aste.tipo_oggetto VALUES (Nome_categoria, Nome_Oggetto, Dimensioni, Descrizione);
+		ELSE INSERT INTO aste.tipo_oggetto VALUES (Nome_categoria, Nome_Oggetto, Descrizione);
         END IF;
 END$$
 
@@ -250,9 +250,12 @@ DECLARE lastOffer FLOAT;
     END IF;
 -- Controllo se non ci sono ancora offerte sull'oggetto
 	IF NOT EXISTS (SELECT * FROM aste.offerte WHERE offerte.Oggetto = id) THEN
-    INSERT INTO  aste.offerte VALUES(CF, NOW(6), val_offerta, autoOfferta, id, automatic);
+		IF (val_offerta > (SELECT Prezzo_base FROM aste.oggetto WHERE Id_oggetto = id)) THEN
+    INSERT INTO  aste.offerte VALUES(CF, NOW(6), val_offerta, autoOfferta, upper(id), automatic);
     LEAVE this_proc;
-    END IF;
+		ELSE SIGNAL SQLSTATE '02000' SET MESSAGE_TEXT = "Devi inserire un\'offerta maggiore";
+		END IF;
+  END IF;
 
 -- controllo se è stato l'ultimo a mettere l'offerta
 	CALL aste.getLastCF(id, cfMax);
@@ -263,7 +266,7 @@ DECLARE lastOffer FLOAT;
 		END IF;
         IF (autoOfferta <= val_offerta and !automatic) THEN SIGNAL SQLSTATE '02000' SET MESSAGE_TEXT = "Se vuoi inserire una controfferta automatica, essa deve essere maggiore dell\'offerta attuale";
 		END IF;
-        INSERT INTO  aste.offerte VALUES(CF, NOW(6), val_offerta, autoOfferta, id, automatic);
+        INSERT INTO  aste.offerte VALUES(CF, NOW(6), val_offerta, autoOfferta, upper(id), automatic);
     ELSE SIGNAL SQLSTATE '02000' SET MESSAGE_TEXT = "La tua offerta e\' gia\' la piu\' alta";
 	END IF;
 
@@ -314,7 +317,7 @@ DELIMITER ;
 DELIMITER $$
 CREATE PROCEDURE aste.visualizza_aste_aperte()
 BEGIN
-SELECT Id_oggetto as ID, Tipo as Nome, Colore, Condizione, CAST(Prezzo_base AS CHAR)as "Prezzo Iniziale",
+SELECT Id_oggetto as ID, Tipo as Nome, Colore, Dimensioni, Condizione, CAST(Prezzo_base AS CHAR)as "Prezzo Iniziale",
 CAST((SELECT Valore from aste.offerte Where Oggetto = Id_oggetto and Valore = (SELECT DISTINCT MAX(Valore) FROM aste.offerte WHERE Oggetto = Id_oggetto)) AS CHAR) as "Prezzo Attuale",
 TIME_FORMAT(SEC_TO_TIME(TIMESTAMPDIFF(SECOND,NOW(), Data_termine)), "%T") as "Tempo rimanente",
 CAST((SELECT COUNT(*) FROM aste.offerte WHERE offerte.Oggetto = ID) AS CHAR) AS "N.Offerte"
@@ -350,22 +353,22 @@ DELIMITER ;
 
 DELIMITER $$
 CREATE PROCEDURE aste.visualizza_oggetti()
-SELECT Nome_oggetto as "Oggetto", Dimensioni, Descrizione_oggetto as "Descrizione" FROM aste.tipo_oggetto$$
+SELECT Nome_oggetto as "Oggetto",  Descrizione_oggetto as "Descrizione" FROM aste.tipo_oggetto$$
 
 DELIMITER ;
 -- -----------------------------------------------------
--- procedure visualizza_oggetti
+-- procedure inserisci_oggetto
 -- -----------------------------------------------------
 DELIMITER $$
-CREATE PROCEDURE aste.inserisci_oggetto(IN id VARCHAR(25), IN colore VARCHAR(25), IN prezzo VARCHAR(15), IN condizione INT, IN tipo VARCHAR(25), IN scadenza VARCHAR(9))
+CREATE PROCEDURE aste.inserisci_oggetto(IN id VARCHAR(25), IN colore VARCHAR(25), IN dimensioni VARCHAR(50), IN prezzo FLOAT, IN condizione INT, IN tipo VARCHAR(25), IN scadenza VARCHAR(9))
 BEGIN
 	DECLARE categoria VARCHAR(25);
     DECLARE finale_scadenza DATETIME;
     IF (condizione <1 OR condizione>5) THEN SIGNAL SQLSTATE '02000' SET MESSAGE_TEXT = "Condizione non accettabile";
     ELSE
-    SELECT Nome_categoria FROM db_prova.tipo_oggetto WHERE Nome_Oggetto = tipo INTO categoria;
+    SELECT Nome_categoria FROM aste.tipo_oggetto WHERE Nome_Oggetto = tipo INTO categoria;
     SET finale_scadenza = addtime(NOW(), time_format(scadenza, "%T"));
-	INSERT INTO db_prova.oggetto VALUES (upper(id), colore, prezzo, condizione, finale_scadenza, prezzo, upper(tipo), categoria);
+	INSERT INTO aste.oggetto VALUES (upper(id), colore, dimensioni, prezzo, condizione, finale_scadenza, upper(tipo), categoria);
 	END IF;
 END $$
 DELIMITER ;
@@ -378,4 +381,23 @@ CREATE PROCEDURE aste.startEvent ()
 BEGIN
 	SET GLOBAL event_scheduler = ON;
 END $$
+DELIMITER ;
+
+
+-- -----------------------------------------------------
+-- procedure getLastCF
+-- -----------------------------------------------------
+DELIMITER $$
+CREATE PROCEDURE aste.getLastCF(IN id VARCHAR(25), OUT lastCF VARCHAR(16))
+SELECT CF_Utente INTO lastCF from aste.offerte WHERE Oggetto = id and Valore = (SELECT DISTINCT MAX(Valore) FROM aste.offerte WHERE oggetto = id)$$
+
+DELIMITER ;
+
+
+-- -----------------------------------------------------
+-- procedure getLastOffer
+-- -----------------------------------------------------
+DELIMITER $$
+CREATE PROCEDURE aste.getLastOffer(IN id VARCHAR(25), OUT lastOffer FLOAT)
+SELECT Valore INTO lastOffer FROM aste.offerte WHERE offerte.Oggetto = id and Insert_time = (SELECT DISTINCT MAX(Insert_time) FROM aste.offerte WHERE offerte.Oggetto = id)$$
 DELIMITER ;

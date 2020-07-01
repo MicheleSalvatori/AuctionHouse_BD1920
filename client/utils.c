@@ -6,7 +6,7 @@
 
 void startEvent(MYSQL* conn){
 	MYSQL_STMT *prepared_stmt;
-	
+
 	if (!setup_prepared_stmt(&prepared_stmt, "call startEvent()",conn)){
 		print_stmt_error(prepared_stmt, "Impossibile cambiare la variabile globale event_scheduler");
 	}
@@ -18,18 +18,18 @@ void startEvent(MYSQL* conn){
 	mysql_stmt_close(prepared_stmt);
 }
 
-MYSQL_TIME getDate(){
-	MYSQL_TIME ts;
+void getDate(char *data){
+	MYSQL_TIME time_st;
 
 	clearScreen("Durata asta [MAX 7 MIN 1 GIORNI]");
 	printf("GIORNI: ");
-	scanf("%d",&(ts.day));
+	scanf("%d",&(time_st.day));
 	printf("ORE: ");
-	scanf("%d",&(ts.hour));
+	scanf("%d",&(time_st.hour));
 	printf("MINUTI: ");
-	scanf("%d",&(ts.minute) );
+	scanf("%d",&(time_st.minute) );
 
-	return ts;
+	sprintf(data, "%d:%02d",time_st.day * 24 + time_st.hour, time_st.minute);
 }
 
 void clearScreen(char* s){

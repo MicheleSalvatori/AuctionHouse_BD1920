@@ -12,13 +12,16 @@ INSERT INTO aste.utenti VALUES ("MNTVTR97T57I493M","Vittoria","Mount","1997/12/1
 ("SLVMHL98T07A123M", "Michele", "Salvatori", "1998/12/07", "Fumnone", "Via fumone, 1", "Fumone", "4757990030437744", "2029/09", "Michele", "Salvatori", "999", md5("michele.salvatori"), "michele.salvatori", 1);
 
 
-INSERT INTO aste.categoria VALUES ("Abbigliamento", 1),("Elettrodomestici", 1),("Elettronica", 1),
-("Da Cucina", 2),("Audio e Video", 2),("Donna", 2),("Uomo", 2),("Informatica", 2),("Telefonia e accessori", 2),
-("Accessori", 3),("Archiviazione", 3),("Grandi", 3),("Piccoli", 3),("Invernale", 3),("Monitor", 3),("Radio", 3),("Smartphone", 3),
+INSERT INTO aste.categoria VALUES ("Elettrodomestici", 1),("Elettronica", 1),
+("Da Cucina", 2),("Audio e Video", 2),("Informatica", 2),("Telefonia e accessori", 2),("Cura della casa", 2),
+("Archiviazione", 3),("Grandi", 3),("Piccoli", 3),("Monitor", 3),("Radio", 3),("Smartphone", 3),("Pulizia", 3),
 ("Smartwatch", 3), ("TV", 3);
 
-INSERT INTO aste.catIndex VALUES ("Abbigliamento", "Uomo"),("Abbigliamento", "Donna"), ("Uomo", "Invernale"), ("Donna", "Invernale"), ("Uomo", "Accessori"), ("Donna", "Accessori"),
+INSERT INTO aste.catIndex VALUES
 ("Elettrodomestici", "Da Cucina"), ("Da Cucina", "Piccoli"), ("Da Cucina", "Grandi"),
 ("Elettronica", "Audio e video"), ("Elettronica", "Informatica"), ("Elettronica", "Telefonia e accessori"),
 ("Informatica", "Archiviazione"), ("Informatica", "Monitor"), ("Audio e video", "Radio"), ("Audio e video", "TV"),
 ("Telefonia e accessori", "Smartphone"), ("Telefonia e accessori", "Smartwatch");
+
+INSERT INTO aste.oggetto VALUES("A01", "Grigio","45x17", "122", "Nuovo", date_add(NOW(), INTERVAL 7 day), "Tostapane", "Piccoli"),
+("B45", "Alluminio","230x75x75", "599", "Nuovo", date_add(NOW(), INTERVAL 7 day), "Frigorifero", "Grandi"),

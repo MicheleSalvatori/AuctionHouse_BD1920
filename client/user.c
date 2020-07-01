@@ -35,7 +35,6 @@ void visualizza_cat_3(MYSQL* conn){
 		else{
 			dump_result_set(conn, prepared_stmt, "Categorie");
 		}
-		// more results? -1 = no, >0 = error, 0 = yes (keep looking)
 	 	next:
 		status = mysql_stmt_next_result(prepared_stmt);
 		if (status > 0)
@@ -102,7 +101,7 @@ void nuova_offerta(MYSQL *conn, char *s){
 	fflush(stdin);
 	if (!strcasecmp(id, "quit")) goto err;
 
-	printf("Inserisci valore offerta: ");
+	printf("Inserisci valore offerta [granularita' multipla di 0.5euro]: ");
 	scanf("%f", &valore);
 	fflush(stdin);
 
@@ -308,12 +307,10 @@ char cf[17];
 
 	if (mysql_stmt_bind_param(prepared_stmt, param)!=0){
 		print_stmt_error(prepared_stmt, "Imposibbile ottenere codice fiscale utente");
-		goto err;
 	}
 
 	if (mysql_stmt_execute(prepared_stmt)!=0){
 		print_stmt_error(prepared_stmt, "Impossibile eseguire procedura per ottenere codice fiscale");
-		goto err;
 	}
 
 	memset(param, 0, sizeof(param));
@@ -323,11 +320,9 @@ char cf[17];
 
 	if(mysql_stmt_bind_result(prepared_stmt, param)) {
 		print_stmt_error(prepared_stmt, "Could not retrieve output parameter");
-		goto err;
 	}
 	if(mysql_stmt_fetch(prepared_stmt)) {
 		print_stmt_error(prepared_stmt, "Could not buffer results");
-		goto err;
 	}
 	mysql_stmt_close(prepared_stmt);
 	printf("CF: %s\n", cf);
@@ -338,6 +333,7 @@ char cf[17];
 		printf("2) Nuova offerta\n");
 		printf("3) Aste attive interessate\n");
 		printf("4) Oggetti aggiudicati\n");
+		printf("5) Visualizza Categorie\n");
 		printf("99) Logout\n");
 		printf("Inserisci un comando -> ");
 		scanf("%i", &cmd);
@@ -363,6 +359,12 @@ char cf[17];
 			input_wait("Premi invio per tornare indietro...");
 			continue;
 		}
+		if(cmd == 5){
+			clearScreen(s);
+			visualizza_cat_3(conn);
+			input_wait("Premi invio per tornare indietro...");
+			continue;
+		}
 		if (cmd == 99){
 			break;
 		}
@@ -371,7 +373,4 @@ char cf[17];
 			continue;
 		}
 	}
-
-	err:
-	mysql_stmt_close(prepared_stmt);
 }

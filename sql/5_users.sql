@@ -6,8 +6,8 @@ GRANT EXECUTE ON PROCEDURE aste.inserisci_utente TO 'login'@'localhost';
 ## USER
 CREATE USER 'user'@'localhost' IDENTIFIED BY 'userPsw';
 GRANT EXECUTE ON PROCEDURE aste.visualizza_aste_aperte TO 'user'@'localhost';
-GRANT EXECUTE ON PROCEDURE aste.visualizza_cat_1 TO 'user'@'localhost';
 GRANT EXECUTE ON PROCEDURE aste.getCF TO 'user'@'localhost';
+GRANT EXECUTE ON PROCEDURE aste.visualizza_cat_3 TO 'user'@'localhost';
 GRANT EXECUTE ON PROCEDURE aste.autoOfferta TO 'user'@'localhost';
 GRANT EXECUTE ON PROCEDURE aste.listInteressati TO 'user'@'localhost';
 GRANT EXECUTE ON PROCEDURE aste.listAggiudicati TO 'user'@'localhost';
