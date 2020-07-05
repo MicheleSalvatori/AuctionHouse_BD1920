@@ -8,8 +8,8 @@ SET GLOBAL lc_time_names = 'it_CH';
 
 ## UTENTI
 
-CREATE TABLE aste.utenti (
-  CF_Utente CHAR(16) PRIMARY KEY,
+CREATE TABLE aste.Utente (
+  CF CHAR(16) PRIMARY KEY,
   Nome VARCHAR(15) NOT NULL,
   Cognome VARCHAR(15) NOT NULL,
   Data_nascita DATE NOT NULL,
@@ -28,12 +28,12 @@ CREATE TABLE aste.utenti (
 
 ## OFFERTE
 
-CREATE TABLE aste.offerte(
+CREATE TABLE aste.Offerta(
   CF_Utente CHAR(16),
   Insert_time DATETIME(6) NOT NULL,
   Valore FLOAT NOT NULL,
   Max_val_controfferta FLOAT NULL DEFAULT NULL,
-  Oggetto VARCHAR(25) NOT NULL,
+  Id_oggetto VARCHAR(25) NOT NULL,
   automatic TINYINT(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (CF_Utente, Insert_time));
 

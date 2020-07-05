@@ -255,7 +255,7 @@ int main (int argc, char *argv[]) {
 		fprintf(stderr, "Errore conn\n");
 	}
 
-	login = mysql_real_connect(conn, "localhost" ,"login", "loginUser", "aste", 3306, NULL, 0);				// prova
+	login = mysql_real_connect(conn, "localhost" ,"login", "loginUser", "auction_house", 3306, NULL, 0);				// prova
 
 		if (login == NULL) {
 		fprintf(stderr, "%s\n", mysql_error(conn));
@@ -297,7 +297,7 @@ int main (int argc, char *argv[]) {
 				case 1:
 					run_as_admin(conn, u);
 
-					if (mysql_change_user(conn,"login", "loginUser", "aste")){
+					if (mysql_change_user(conn,"login", "loginUser", "auction_house")){
 						fprintf(stderr, "mysql_change_user() failed\n");
 						input_wait("Premi un tasto per continuare...");
 						exit(EXIT_FAILURE);
@@ -307,7 +307,7 @@ int main (int argc, char *argv[]) {
 				case 0:
 					run_as_user(conn, u);
 
-					if (mysql_change_user(conn,"login", "loginUser", "aste")){
+					if (mysql_change_user(conn,"login", "loginUser", "auction_house")){
 						fprintf(stderr, "mysql_change_user() failed\n");
 						input_wait("Premi un tasto per uscire...");
 						exit(EXIT_FAILURE);

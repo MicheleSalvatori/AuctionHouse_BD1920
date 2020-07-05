@@ -373,12 +373,11 @@ void report(MYSQL *conn, char* s){
 
 void run_as_admin(MYSQL *conn, char *s){
 	int cmd;
-	if (mysql_change_user(conn,"admin", "adminPsw", "aste")){
+	if (mysql_change_user(conn,"admin", "adminPsw", "auction_house")){
 		fprintf(stderr, "mysql_change_user() failed\n");
 		exit(EXIT_FAILURE);
 	}
 
-	// printf("size: %d\n", strlen(s) );
 	char header[strlen(s)+1];
 	sprintf(header, "Admin: %s", s);
 

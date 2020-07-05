@@ -288,7 +288,7 @@ MYSQL_STMT *prepared_stmt;
 MYSQL_BIND param[2];
 char cf[17];
 
-	if (mysql_change_user(conn,"user", "userPsw", "aste")){
+	if (mysql_change_user(conn,"user", "userPsw", "auction_house")){
 		fprintf(stderr, "mysql_change_user() failed\n");
 		exit(EXIT_FAILURE);
 	}
